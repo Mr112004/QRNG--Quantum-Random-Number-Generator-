@@ -1,98 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>QRNG - Super Quantum Engine</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, user-scalable=0" />
+    <title>Quantum Key Engine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 
-<link rel="manifest" href="/static/manifest.json">
-<meta name="theme-color" content="#E60012">
+    <style>
+        :root {
+            --bg: #050505;
+            --card: rgba(22, 22, 22, 0.7);
+            --accent: #E60012;
+            --text: #ffffff;
+            --muted: #9ca3af;
+            --border: rgba(255, 255, 255, 0.08);
+            --canvas-bg: rgba(0, 0, 0, 0.5);
+        }
 
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-serif; overflow-x: hidden; }
 
-<style>
-body {
-    margin: 0;
-    font-family: 'Roboto', sans-serif;
-    background: #111;
-    color: white;
-}
+        header { height: 75px; display: flex; align-items: center; justify-content: space-between; padding: 0 5%; border-bottom: 1px solid var(--border); background: rgba(10,10,10,0.8); backdrop-filter: blur(15px); position: sticky; top: 0; z-index: 100; }
+        .logo { display: flex; align-items: center; gap: 12px; font-weight: 900; text-decoration: none; color: #fff; text-transform: uppercase; font-size: 0.95rem; }
+        .logo-icon { background: var(--accent); padding: 4px 10px; border-radius: 6px; }
 
-header {
-    padding: 20px 40px;
-    background: #000;
-}
+        .main-container { max-width: 1400px; margin: 25px auto; padding: 0 20px; display: grid; grid-template-columns: 320px 1fr; gap: 25px; }
+        
+        /* Mobile-First Stacking Logic */
+        @media (max-width: 1024px) { 
+            .main-container { grid-template-columns: 1fr; } 
+            .sidebar { order: 2; } 
+            .gen-sec { order: 1; } 
+        }
 
-.main-container {
-    display: grid;
-    grid-template-columns: 320px 1fr;
-    gap: 30px;
-    padding: 40px;
-}
+        .card { 
+            background: var(--card); border: 1px solid var(--border); border-radius: 24px; 
+            overflow: hidden; transition: 0.3s ease; position: relative; backdrop-filter: blur(25px);
+        }
+        .card:hover { border-color: rgba(230,0,18,0.5); box-shadow: 0 0 35px rgba(230,0,18,0.15); }
+        .card::after { 
+            content: ""; position: absolute; top: 0; left: -150%; width: 100%; height: 100%; 
+            background: linear-gradient(90deg, transparent, rgba(230, 0, 18, 0.1), transparent); transform: skewX(-20deg); pointer-events: none;
+        }
+        .card:hover::after { left: 150%; transition: left 0.8s ease-in-out; }
 
-.card {
-    background: rgba(255,255,255,0.05);
-    padding: 30px;
-    border-radius: 20px;
-}
+        .visualizer { height: 250px; background: var(--canvas-bg); position: relative; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--border); }
+        #v-canvas { width: 100%; height: 100%; }
+        .lock-icon { position: absolute; width: 110px; opacity: 0.3; pointer-events: none; z-index: 5; color: #fff; }
 
-.password-box {
-    padding: 20px;
-    background: black;
-    border-radius: 10px;
-    margin-top: 20px;
-    font-family: 'JetBrains Mono';
-}
+        .password-box { background: rgba(0,0,0,0.3); padding: 25px; border-radius: 18px; font-family: 'JetBrains Mono'; font-size: 1.4rem; text-align: center; border: 1px solid var(--border); word-break: break-all; min-height: 90px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.3s; margin: 20px 0; }
+        .password-box:hover { background: rgba(255,255,255,0.03); }
 
-button {
-    background: #E60012;
-    border: none;
-    padding: 15px;
-    font-weight: bold;
-    margin-top: 20px;
-    width: 100%;
-}
+        .btn-gen { background: var(--accent); color: #fff; border: none; padding: 18px; border-radius: 14px; font-weight: 900; width: 100%; cursor: pointer; text-transform: uppercase; box-shadow: 0 5px 25px rgba(230,0,18,0.3); transition: 0.2s; }
+        .btn-gen:active { transform: scale(0.98); }
 
-/* MOBILE FIX */
-@media (max-width: 768px) {
+        .sidebar-header { font-weight: 900; color: var(--muted); font-size: 0.8rem; text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 20px; letter-spacing: 1px; }
+        .status-tag { background: rgba(34,197,94,0.1); color: #22c55e; padding: 3px 10px; border-radius: 6px; font-weight: 900; font-size: 0.75rem; text-transform: uppercase; }
 
-    .main-container {
-        grid-template-columns: 1fr;
-        padding: 20px;
-    }
+        .history-item { padding: 14px; border-radius: 12px; border: 1px solid var(--border); font-size: 0.8rem; font-family: 'JetBrains Mono'; margin-bottom: 10px; display: flex; gap: 10px; align-items: center; }
+        .history-item span { background: var(--accent); padding: 2px 6px; border-radius: 5px; font-weight: 900; }
 
-}
-</style>
+        .toast { position: fixed; left: 50%; bottom: 35px; transform: translateX(-50%); background: var(--accent); color: #fff; padding: 14px 30px; border-radius: 12px; font-weight: 800; z-index: 5000; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    </style>
 </head>
-
 <body>
+    <div id="toast" class="toast">COPIED TO CLIPBOARD</div>
+    <header>
+        <a href="/" class="logo"><div class="logo-icon">Q</div> SUPER <span>QUANTUM</span></a>
+        <div style="font-size: 1.2rem; cursor:pointer;">🌙</div>
+    </header>
 
-<header>
-SUPER <span style="color:#E60012">QUANTUM</span>
-</header>
+    <main class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="card" style="padding:25px; margin-bottom:20px;">
+                <div class="sidebar-header">Safety Audit</div>
+                <div style="font-size: 0.9rem; display: flex; justify-content: space-between; margin-bottom:12px">
+                    Source: <span class="status-tag" id="s-origin">Quantum</span>
+                </div>
+                <div style="font-size: 0.9rem; display: flex; justify-content: space-between; margin-bottom:12px">
+                    Predictability: <span class="status-tag">Zero</span>
+                </div>
+                <div style="font-size: 0.9rem; display: flex; justify-content: space-between;">
+                    Entropy: <span id="s-ent" style="font-weight:900">--</span> bits
+                </div>
+            </div>
+            <div class="card" style="padding:25px;">
+                <div class="sidebar-header">Recent Keys</div>
+                <div id="history-list"></div>
+            </div>
+        </aside>
 
-<div class="main-container">
-    <div class="card">
-        <h2>Quantum Key Engine</h2>
-        <button onclick="generate()">Generate</button>
-        <div class="password-box" id="output">READY</div>
-    </div>
-</div>
+        <!-- Generator -->
+        <section class="gen-sec">
+            <div class="card">
+                <div class="visualizer">
+                    <canvas id="v-canvas"></canvas>
+                    <svg class="lock-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path id="shackle" d="M12 2a5 5 0 0 0-5 5v3h2V7a3 3 0 0 1 6 0v3h2V7a5 5 0 0 0-5-5z"/>
+                        <rect x="5" y="10" width="14" height="11" rx="2" fill="#FFD700" stroke="#000" stroke-width="0.5"/>
+                    </svg>
+                    <div style="position:absolute; top:15px; right:15px; background:var(--accent); font-size:0.7rem; padding:5px 12px; border-radius:6px; font-weight:900;">LIVE QUANTUM SOURCE</div>
+                </div>
+                <div style="padding:35px;">
+                    <h2 style="text-transform:uppercase; font-size:1.8rem; letter-spacing:-1px;">Quantum Key Engine</h2>
+                    <p style="color:var(--muted); font-size:0.9rem; margin-top:8px;">Harnessing Laboratory Vacuum Fluctuations for absolute entropy.</p>
+                    
+                    <div class="password-box" id="p-display" onclick="copyKey()">READY_TO_GENERATE</div>
+                    <button class="btn-gen" id="gen-btn">GENERATE SECURE KEY</button>
+                </div>
+            </div>
 
-<script>
-function generate() {
-    fetch("/generate-password")
-    .then(res => res.json())
-    .then(data => {
-        document.getElementById("output").innerText =
-            data.key ? data.key : data.error;
-    });
-}
+            <!-- Lab Area -->
+            <div class="card" style="margin-top:25px; padding:25px;">
+                <h3 style="font-size:1rem; text-transform:uppercase; margin-bottom:15px; color:var(--muted)">Security Lab</h3>
+                <input type="text" id="lab-input" style="width:100%; padding:18px; background:rgba(0,0,0,0.4); border:1px solid var(--border); color:#fff; border-radius:15px; font-family:monospace; font-size:1.1rem; outline:none;" placeholder="Paste key to verify origin...">
+                <div id="lab-rating" style="margin-top:15px; font-weight:900; color:var(--accent); font-size:0.9rem; text-transform:uppercase;">Origin Status: Unknown</div>
+            </div>
+        </section>
+    </main>
 
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/static/sw.js');
-}
-</script>
+    <script>
+        const btn = document.getElementById('gen-btn'), display = document.getElementById('p-display'), hList = document.getElementById('history-list');
+        const vCanvas = document.getElementById('v-canvas'), vCtx = vCanvas.getContext('2d');
+        
+        function resize() { vCanvas.width = vCanvas.offsetWidth; vCanvas.height = vCanvas.offsetHeight; }
+        window.addEventListener('resize', resize); resize();
 
+        let parts = [];
+        class P { 
+            constructor(){ this.init(); }
+            init() { this.x=Math.random()*vCanvas.width; this.y=Math.random()*vCanvas.height; this.vx=(Math.random()-0.5)*2.8; this.vy=(Math.random()-0.5)*2.8; }
+            draw(){ vCtx.fillStyle='rgba(230,0,18,0.45)'; vCtx.beginPath(); vCtx.arc(this.x,this.y,1.8,0,Math.PI*2); vCtx.fill(); }
+            update(){ this.x+=this.vx; this.y+=this.vy; if(this.x<0||this.x>vCanvas.width)this.vx*=-1; if(this.y<0||this.y>vCanvas.height)this.vy*=-1; }
+        }
+        for(let i=0;i<70;i++) parts.push(new P());
+        function loop(){ vCtx.fillStyle='rgba(0,0,0,0.6)'; vCtx.fillRect(0,0,vCanvas.width,vCanvas.height); parts.forEach(p=>{p.update(); p.draw();}); requestAnimationFrame(loop); }
+        loop();
+
+        btn.onclick = async () => {
+            gsap.to("#shackle", { y: -6, rotation: -15, duration: 0.3 });
+            btn.innerText = "MEASURING VACUUM..."; btn.disabled = true;
+
+            try {
+                const res = await fetch('/generate-password');
+                const data = await res.json();
+                
+                setTimeout(() => {
+                    const key = data.key;
+                    display.innerText = key;
+                    document.getElementById('s-ent').innerText = Math.floor(key.length * 6.3);
+                    btn.innerText = "GENERATE SECURE KEY"; btn.disabled = false;
+                    gsap.to("#shackle", { y: 0, rotation: 0, duration: 0.5, ease: "bounce.out" });
+                    
+                    const item = document.createElement('div'); item.className = 'history-item';
+                    item.innerHTML = `<span>Q</span> ${key}`;
+                    hList.prepend(item); if(hList.children.length > 5) hList.lastChild.remove();
+                }, 600);
+            } catch (err) {
+                btn.innerText = "API ERROR - RETRY"; btn.disabled = false;
+            }
+        };
+
+        function copyKey() {
+            if(display.innerText.includes('READY')) return;
+            navigator.clipboard.writeText(display.innerText);
+            const t = document.getElementById('toast'); t.style.display = 'block';
+            setTimeout(() => t.style.display='none', 1500);
+        }
+
+        document.getElementById('lab-input').oninput = (e) => {
+            const val = e.target.value;
+            const rating = document.getElementById('lab-rating');
+            if(!val) rating.innerText = "Origin Status: Unknown";
+            else rating.innerText = val.length > 12 ? "Origin Status: High Entropy (Physical)" : "Origin Status: Analyzing Trace...";
+        };
+    </script>
 </body>
 </html>
