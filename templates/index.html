@@ -204,6 +204,17 @@
 
         function vibrate() { if(navigator.vibrate) navigator.vibrate(25); }
 
+        // --- PWA SERVICE WORKER REGISTRATION (Root Path Fix) ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then(reg => {
+                    console.log('SW Registered at Root Scope');
+                }).catch(err => {
+                    console.log('SW Registration Failed:', err);
+                });
+            });
+        }
+
         // --- PRIVACY LOCK LOGIC ---
         function toggleLockSet() {
             vibrate();
