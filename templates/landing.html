@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, user-scalable=0" />
     <title>Super Quantum | Entrance</title>
-    <link rel="manifest" href="/static/manifest.json">
+    <link rel="manifest" href="/manifest.json">
     
     <!-- Status Bar Integration: Set to background color to remove red block -->
     <meta name="theme-color" content="#050505">
@@ -218,26 +218,21 @@
     <script>
         gsap.registerPlugin(ScrollTrigger);
 
+        // --- PWA SERVICE WORKER REGISTRATION (Root Path Fix) ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js');
+            });
+        }
+
         // --- SPLASH SCREEN BEHAVIOR ---
-        // Pulse animation for the splash logo while loading
         gsap.to("#splash-q", { scale: 1.1, repeat: -1, yoyo: true, duration: 0.8, ease: "sine.inOut" });
 
         window.addEventListener('load', () => {
             const splashTimeline = gsap.timeline();
-            
             splashTimeline
-                .to(".splash-content", { 
-                    opacity: 0, 
-                    y: -40, 
-                    duration: 0.6, 
-                    delay: 0.8, // Brief pause to show identity
-                    ease: "power3.in" 
-                })
-                .to("#splash-screen", { 
-                    yPercent: -100, 
-                    duration: 0.8, 
-                    ease: "expo.inOut" 
-                })
+                .to(".splash-content", { opacity: 0, y: -40, duration: 0.6, delay: 0.8, ease: "power3.in" })
+                .to("#splash-screen", { yPercent: -100, duration: 0.8, ease: "expo.inOut" })
                 .set("#splash-screen", { display: "none" });
         });
 
