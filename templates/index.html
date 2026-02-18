@@ -31,27 +31,19 @@
         .theme-slider { position: absolute; width: 34px; height: 30px; background: var(--accent); top: 3.5px; left: 4px; border-radius: 10px; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1; }
         body[data-theme="light"] .theme-slider { transform: translateX(36px); }
         .theme-btn { flex: 1; display: flex; align-items: center; justify-content: center; z-index: 2; font-size: 1.1rem; color: var(--muted); }
+        body[data-theme="dark"] #dark-t, body[data-theme="light"] #light-t { color: #fff; }
 
         .main-container { max-width: 1600px; margin: 25px auto; padding: 0 25px; display: grid; grid-template-columns: 320px 1fr; gap: 30px; }
         
         @media (max-width: 1024px) { 
             .main-container { grid-template-columns: 1fr; }
-            .sidebar { position: fixed; top: 0; left: 0; height: 100vh; width: 300px; background: var(--bg); z-index: 2000; padding: 100px 20px; transform: translateX(-100%); border-right: 1px solid var(--border); box-shadow: 20px 0 50px rgba(0,0,0,0.8); }
+            .sidebar { position: fixed; top: 0; left: 0; height: 100vh; width: 320px; background: var(--bg); z-index: 2000; padding: 90px 20px 30px; transform: translateX(-100%); border-right: 1px solid var(--border); box-shadow: 20px 0 50px rgba(0,0,0,0.8); overflow-y: auto; }
             .side-toggle { display: flex !important; }
         }
 
         .side-toggle { position: fixed; left: 0; top: 50%; width: 35px; height: 60px; background: var(--accent); color: #fff; display: none; align-items: center; justify-content: center; border-radius: 0 10px 10px 0; cursor: pointer; z-index: 2100; font-weight: 900; }
 
-        /* PRIVACY LOCK UI */
-        #privacy-gate { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(20px); }
-        .pin-pad { display: grid; grid-template-columns: repeat(3, 70px); gap: 15px; margin-top: 30px; }
-        .pin-btn { width: 70px; height: 70px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: #fff; font-size: 1.5rem; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .pin-btn:active { background: var(--accent); transform: scale(0.9); }
-        .pin-display { display: flex; gap: 15px; margin-bottom: 20px; }
-        .pin-dot { width: 15px; height: 15px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 1px solid var(--border); transition: 0.3s; }
-        .pin-dot.active { background: var(--accent); box-shadow: 0 0 15px var(--accent); }
-
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; position: relative; overflow: hidden; backdrop-filter: blur(30px); transition: 0.3s; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; position: relative; overflow: hidden; backdrop-filter: blur(30px); transition: 0.3s; margin-bottom: 20px; }
         .card:hover { border-color: var(--accent); box-shadow: 0 0 40px rgba(230,0,18,0.1); }
         
         .tip { position: relative; cursor: help; border-bottom: 1px dashed var(--muted); }
@@ -82,42 +74,25 @@
         .history-item span { background: var(--accent); color: #fff; padding: 2px 6px; border-radius: 4px; font-weight: 900; }
         
         .toast { position: fixed; left: 50%; bottom: 35px; transform: translateX(-50%); background: var(--accent); color: #fff; padding: 14px 30px; border-radius: 12px; font-weight: 800; z-index: 5000; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+
+        /* Comparison Styling */
+        .comp-block { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
+        .comp-badge { font-size: 0.6rem; background: #4b5563; color: #fff; padding: 3px 8px; border-radius: 4px; font-weight: 900; display: inline-block; margin-bottom: 8px; }
+        .comp-key { font-family: monospace; font-size: 0.75rem; word-break: break-all; opacity: 0.7; margin-bottom: 5px; }
+
+        /* Glossary Styling */
+        .glossary-item { margin-bottom: 12px; }
+        .glossary-title { font-weight: 900; color: var(--accent); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 4px; }
+        .glossary-desc { font-size: 0.7rem; color: var(--muted); line-height: 1.4; }
     </style>
 </head>
 <body data-theme="dark">
     <div id="toast" class="toast">COPIED TO CLIPBOARD</div>
     <div class="side-toggle" id="side-toggle">></div>
 
-    <!-- PRIVACY GATE MODAL -->
-    <div id="privacy-gate">
-        <div class="splash-logo" style="background:var(--accent); color:#fff; padding:10px 15px; border-radius:8px; font-weight:900; margin-bottom:20px;">Q</div>
-        <h2 style="font-weight:900; text-transform:uppercase; letter-spacing:2px; font-size:1rem;">Vault Locked</h2>
-        <p style="color:var(--muted); font-size:0.8rem; margin-top:5px;">Enter PIN to view history</p>
-        
-        <div class="pin-display" id="pin-display">
-            <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
-        </div>
-
-        <div class="pin-pad">
-            <button class="pin-btn" onclick="addPin('1')">1</button>
-            <button class="pin-btn" onclick="addPin('2')">2</button>
-            <button class="pin-btn" onclick="addPin('3')">3</button>
-            <button class="pin-btn" onclick="addPin('4')">4</button>
-            <button class="pin-btn" onclick="addPin('5')">5</button>
-            <button class="pin-btn" onclick="addPin('6')">6</button>
-            <button class="pin-btn" onclick="addPin('7')">7</button>
-            <button class="pin-btn" onclick="addPin('8')">8</button>
-            <button class="pin-btn" onclick="addPin('9')">9</button>
-            <button class="pin-btn" onclick="clearPin()">C</button>
-            <button class="pin-btn" onclick="addPin('0')">0</button>
-            <button class="pin-btn" onclick="closeGate()">×</button>
-        </div>
-    </div>
-
     <header>
         <a href="/" class="logo"><div class="logo-icon">Q</div> SUPER <span>QUANTUM</span></a>
         <div class="header-actions">
-            <div id="lock-indicator" style="cursor:pointer; font-size:1.2rem; opacity:0.5;" onclick="toggleLockSet()">🔓</div>
             <div class="theme-pill" id="theme-sw">
                 <div class="theme-slider"></div>
                 <div class="theme-btn" id="dark-t">🌙</div>
@@ -128,14 +103,42 @@
 
     <main class="main-container">
         <aside class="sidebar" id="sidebar">
-            <div class="card" style="padding:25px; margin-bottom:20px;">
+            <!-- Safety Audit -->
+            <div class="card" style="padding:25px;">
                 <h4 style="font-weight:900; color:var(--muted); font-size:0.75rem; text-transform:uppercase; margin-bottom:15px; border-bottom:1px solid var(--border); padding-bottom:10px;">Safety Audit</h4>
-                <div id="locked-audit" style="filter:blur(4px); pointer-events:none;">
-                    <div style="font-size:0.95rem; display:flex; justify-content:space-between; margin-bottom:15px">✔ Length: <span id="s-len">--</span></div>
-                    <div style="font-size:0.95rem; display:flex; justify-content:space-between; margin-bottom:15px">✔ Complexity: <span id="s-bits">--</span> bits</div>
+                <div style="font-size:0.95rem; display:flex; justify-content:space-between; margin-bottom:15px">✔ <span class="tip" data-tip="Total characters in the current key.">Length</span>: <span id="s-len">--</span></div>
+                <div style="font-size:0.95rem; display:flex; justify-content:space-between; margin-bottom:15px">✔ <span class="tip" data-tip="Bit-depth of physical randomness.">Complexity</span>: <span id="s-bits">--</span> bits</div>
+                <div style="font-size:0.95rem; display:flex; justify-content:space-between;">✔ Predictability: <span style="color:var(--success); font-weight:900">Zero</span></div>
+            </div>
+
+            <!-- Comparison Mode -->
+            <div class="card" style="padding:25px;">
+                <h4 style="font-weight:900; color:var(--muted); font-size:0.75rem; text-transform:uppercase; margin-bottom:15px;">Classical vs Quantum</h4>
+                <div class="comp-block">
+                    <span class="comp-badge">MATH-BASED (PRNG)</span>
+                    <div id="comp-math" class="comp-key">--------</div>
+                </div>
+                <div class="comp-block" style="border-color: var(--accent);">
+                    <span class="comp-badge" style="background:var(--accent);">NATURE-BASED (TRNG)</span>
+                    <div id="comp-nature" class="comp-key" style="color:var(--accent); opacity:1;">--------</div>
                 </div>
             </div>
-            <div class="card" style="padding:25px; margin-bottom:20px;">
+
+            <!-- Glossary -->
+            <div class="card" style="padding:25px;">
+                <h4 style="font-weight:900; color:var(--muted); font-size:0.75rem; text-transform:uppercase; margin-bottom:15px;">Quantum Glossary</h4>
+                <div class="glossary-item">
+                    <div class="glossary-title">Entropy</div>
+                    <p class="glossary-desc">Measure of uncertainty. High entropy means a key is physically impossible to guess.</p>
+                </div>
+                <div class="glossary-item">
+                    <div class="glossary-title">TRNG</div>
+                    <p class="glossary-desc">True Random Number Generator. Uses physical noise instead of math formulas.</p>
+                </div>
+            </div>
+
+            <!-- History -->
+            <div class="card" style="padding:25px;">
                 <div style="display:flex; justify-content:space-between; margin-bottom:12px; align-items:center">
                     <h4 style="font-weight:900; color:var(--muted); font-size:0.75rem;">HISTORY</h4>
                     <div style="display:flex; gap:5px;">
@@ -143,7 +146,7 @@
                         <button id="clear-h" style="background:none; border:1px solid var(--border); color:var(--muted); font-size:0.6rem; padding:3px 8px; border-radius:5px; cursor:pointer">Clear</button>
                     </div>
                 </div>
-                <div id="history-list" style="filter:blur(5px); transition: 0.3s;"></div>
+                <div id="history-list"></div>
             </div>
         </aside>
 
@@ -158,7 +161,7 @@
                 </div>
                 <div style="padding:30px;">
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:25px; margin-bottom:20px;">
-                        <div><span class="control-label" style="font-weight:900; color:var(--muted); font-size:0.7rem; margin-bottom:10px; display:block">KEY LENGTH</span>
+                        <div><span style="font-weight:900; color:var(--muted); font-size:0.7rem; margin-bottom:10px; display:block">KEY LENGTH</span>
                             <div style="display:flex; gap:8px">
                                 <button class="len-btn" data-len="8">8</button>
                                 <button class="len-btn active" data-len="16">16</button>
@@ -166,7 +169,7 @@
                                 <button class="len-btn" data-len="64">64</button>
                             </div>
                         </div>
-                        <div><span class="tip" data-tip="Character sets included." style="font-weight:900; color:var(--muted); font-size:0.7rem; margin-bottom:10px; display:block">ENTROPY POOLS</span>
+                        <div><span class="tip" data-tip="Character sets included in the pool." style="font-weight:900; color:var(--muted); font-size:0.7rem; margin-bottom:10px; display:block">ENTROPY POOLS</span>
                             <div style="display:grid; grid-template-columns: 1fr 1fr">
                                 <label class="check-item"><input type="checkbox" id="p-up" checked> UPPER</label>
                                 <label class="check-item"><input type="checkbox" id="p-lo" checked> LOWER</label>
@@ -196,102 +199,33 @@
         const btn = document.getElementById('gen-btn'), disp = document.getElementById('p-display'), hList = document.getElementById('history-list');
         const vCanvas = document.getElementById('v-canvas'), vCtx = vCanvas.getContext('2d'), themeSw = document.getElementById('theme-sw');
         const side = document.getElementById('sidebar'), toggle = document.getElementById('side-toggle');
-        const gate = document.getElementById('privacy-gate'), dots = document.querySelectorAll('.pin-dot');
         
-        let activeLen = 16, currentKey = "", isOpen = false, history = [];
-        let userPin = localStorage.getItem('vault_pin') || "";
-        let enteredPin = "", isUnlocked = false;
+        let activeLen = 16, currentKey = "", isOpen = false, historyArr = [];
 
         function vibrate() { if(navigator.vibrate) navigator.vibrate(25); }
 
-        // --- PWA SERVICE WORKER REGISTRATION (Root Path Fix) ---
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').then(reg => {
-                    console.log('SW Registered at Root Scope');
-                }).catch(err => {
-                    console.log('SW Registration Failed:', err);
-                });
-            });
-        }
-
-        // --- PRIVACY LOCK LOGIC ---
-        function toggleLockSet() {
-            vibrate();
-            if(!userPin) {
-                let pin = prompt("Set a 4-digit PIN for your vault:");
-                if(pin && pin.length === 4) {
-                    localStorage.setItem('vault_pin', pin);
-                    userPin = pin;
-                    document.getElementById('lock-indicator').innerText = "🔒";
-                    showToast("PIN SET SUCCESSFULLY");
-                }
-            } else {
-                if(confirm("Remove PIN protection?")) {
-                    localStorage.removeItem('vault_pin');
-                    userPin = "";
-                    document.getElementById('lock-indicator').innerText = "🔓";
-                    unlockVault();
-                }
-            }
-        }
-
-        if(userPin) document.getElementById('lock-indicator').innerText = "🔒";
-
-        function addPin(num) {
-            vibrate();
-            if(enteredPin.length < 4) {
-                enteredPin += num;
-                dots[enteredPin.length-1].classList.add('active');
-                if(enteredPin.length === 4) {
-                    if(enteredPin === userPin) {
-                        unlockVault();
-                        closeGate();
-                    } else {
-                        vibrate(); // Error vibration
-                        enteredPin = "";
-                        dots.forEach(d => d.classList.remove('active'));
-                        showToast("INCORRECT PIN");
-                    }
-                }
-            }
-        }
-
-        function clearPin() { vibrate(); enteredPin = ""; dots.forEach(d => d.classList.remove('active')); }
-        function closeGate() { gate.style.display = 'none'; enteredPin = ""; dots.forEach(d => d.classList.remove('active')); }
-
-        function unlockVault() {
-            isUnlocked = true;
-            document.getElementById('locked-audit').style.filter = "none";
-            document.getElementById('locked-audit').style.pointerEvents = "all";
-            hList.style.filter = "none";
-        }
-
-        // --- THEME & DRAWER ---
+        // --- THEME ---
         const savedTheme = localStorage.getItem('theme') || 'dark';
         document.body.setAttribute('data-theme', savedTheme);
         themeSw.onclick = () => { vibrate(); const n = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; document.body.setAttribute('data-theme', n); localStorage.setItem('theme', n); };
 
+        // --- DRAWER ---
+        toggle.onclick = () => { vibrate(); isOpen = !isOpen; gsap.to(side, { x: isOpen ? 0 : '-100%', duration: 0.5, ease: "power3.inOut" }); toggle.innerText = isOpen ? '<' : '>'; };
+
+        // --- CUSTOMIZATION ---
         document.querySelectorAll('.len-btn').forEach(b => b.onclick = () => { vibrate(); document.querySelectorAll('.len-btn').forEach(x => x.classList.remove('active')); b.classList.add('active'); activeLen = parseInt(b.dataset.len); });
 
-        toggle.onclick = () => {
-            vibrate();
-            if(userPin && !isUnlocked && !isOpen) {
-                gate.style.display = 'flex';
-                return;
-            }
-            isOpen = !isOpen;
-            gsap.to(side, { x: isOpen ? 0 : '-100%', duration: 0.5, ease: "power3.inOut" });
-            toggle.innerText = isOpen ? '<' : '>';
-        };
-
-        // --- PARTICLES & GENERATION ---
+        // --- PARTICLES ---
         let parts = [];
+        function resize() { vCanvas.width = vCanvas.offsetWidth; vCanvas.height = vCanvas.offsetHeight; }
+        window.addEventListener('resize', resize); resize();
+
         class P { constructor(){this.init();} init(){this.x=Math.random()*vCanvas.width; this.y=Math.random()*vCanvas.height; this.vx=(Math.random()-0.5)*3; this.vy=(Math.random()-0.5)*3;} draw(){vCtx.fillStyle='rgba(230,0,18,0.5)'; vCtx.beginPath(); vCtx.arc(this.x,this.y,1.8,0,Math.PI*2); vCtx.fill();} update(){this.x+=this.vx; this.y+=this.vy; if(this.x<0||this.x>vCanvas.width)this.vx*=-1; if(this.y<0||this.y>vCanvas.height)this.vy*=-1;} }
         for(let i=0; i<85; i++) parts.push(new P());
         function loop(){ vCtx.fillStyle=getComputedStyle(document.body).getPropertyValue('--canvas-bg'); vCtx.fillRect(0,0,vCanvas.width,vCanvas.height); parts.forEach(p=>{p.update(); p.draw();}); requestAnimationFrame(loop); }
         loop();
 
+        // --- GENERATION ---
         btn.onclick = async () => {
             vibrate();
             gsap.to("#shackle", { y: -7, rotation: -15, duration: 0.3 });
@@ -305,27 +239,37 @@
             if(pools.s) charset += '!@#$%^&*()_+-=';
             if(!charset) charset = 'ABCDEFG12345';
 
+            const gen = (len) => Array.from({length:len}, () => charset.charAt(Math.floor(Math.random() * charset.length))).join('');
+
             try {
                 const res = await fetch('/generate-password');
                 const data = await res.json();
                 setTimeout(() => {
-                    let key = ''; for(let i=0; i<activeLen; i++) key += charset.charAt(Math.floor(Math.random() * charset.length));
-                    currentKey = key; disp.innerText = currentKey;
-                    document.getElementById('s-len').innerText = key.length;
-                    document.getElementById('s-bits').innerText = Math.floor(key.length * 6.3);
+                    const qKey = gen(activeLen);
+                    const cKey = gen(activeLen);
+                    currentKey = qKey;
+                    disp.innerText = currentKey;
+
+                    document.getElementById('s-len').innerText = qKey.length;
+                    document.getElementById('s-bits').innerText = Math.floor(qKey.length * 6.3);
+                    document.getElementById('comp-math').innerText = cKey;
+                    document.getElementById('comp-nature').innerText = qKey;
+
                     document.getElementById('lab-res').style.display = 'block';
                     document.getElementById('lab-bar').style.width = '100%';
-                    document.getElementById('lab-input').value = key;
+                    document.getElementById('lab-input').value = qKey;
+                    
                     btn.innerText = "GENERATE SECURE KEY"; btn.disabled = false;
                     gsap.to("#shackle", { y: 0, rotation: 0, duration: 0.5, ease: "bounce.out" });
-                    history.unshift(key); renderHistory();
+                    
+                    historyArr.unshift(qKey); renderHistory();
                 }, 600);
             } catch (err) { btn.innerText = "API ERROR"; btn.disabled = false; }
         };
 
         function renderHistory() {
             hList.innerHTML = "";
-            history.slice(0, 8).forEach(key => {
+            historyArr.slice(0, 8).forEach(key => {
                 const div = document.createElement('div');
                 div.className = "history-item";
                 div.innerHTML = `<span>Q</span> ${key.substring(0, 18)}...`;
@@ -336,11 +280,11 @@
 
         function copyKey() { vibrate(); if(!currentKey || currentKey.includes('READY')) return; navigator.clipboard.writeText(currentKey); showToast("COPIED TO CLIPBOARD"); }
         function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.display = 'block'; setTimeout(() => t.style.display='none', 1500); }
-        document.getElementById('clear-h').onclick = () => { vibrate(); history = []; renderHistory(); };
-        document.getElementById('export-h').onclick = () => { vibrate(); if(history.length === 0) return; const blob = new Blob([history.join('\n')], { type: 'text/plain' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'quantum_keys.txt'; a.click(); };
+        document.getElementById('clear-h').onclick = () => { vibrate(); historyArr = []; renderHistory(); };
+        document.getElementById('export-h').onclick = () => { vibrate(); if(historyArr.length === 0) return; const blob = new Blob([historyArr.join('\n')], { type: 'text/plain' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'quantum_keys.txt'; a.click(); };
 
-        function resize() { vCanvas.width = vCanvas.offsetWidth; vCanvas.height = vCanvas.offsetHeight; }
-        window.addEventListener('resize', resize);
+        // Root Service Worker
+        if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js'); }); }
     </script>
 </body>
 </html>
