@@ -3,271 +3,149 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, user-scalable=0" />
-    <title>Super Quantum | Entrance</title>
+    <title>Super Quantum | Select Profile</title>
     <link rel="manifest" href="/manifest.json">
-    
-    <!-- Status Bar Integration: Set to background color to remove red block -->
     <meta name="theme-color" content="#050505">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
-    <!-- Professional Animation Suite -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
     <style>
         :root {
             --bg: #050505;
             --accent: #E60012;
+            --accent-glow: rgba(230, 0, 18, 0.4);
             --text: #ffffff;
             --muted: #9ca3af;
-            --border: rgba(255, 255, 255, 0.1);
-            --glass: rgba(255, 255, 255, 0.03);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { height: 100%; width: 100%; overflow-x: hidden; scroll-behavior: smooth; background-color: var(--bg); color: var(--text); font-family: 'Roboto', sans-serif; }
+        body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-serif; overflow: hidden; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
-        /* --- CUSTOM ANIMATED LAUNCH SCREEN --- */
-        #splash-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg);
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
+        /* --- QUANTUM BACKGROUND CANVAS --- */
+        #bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
 
-        .splash-content {
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
+        .hero-section { text-align: center; z-index: 10; padding: 0 10%; }
+        .tag { color: var(--accent); text-transform: uppercase; font-weight: 900; letter-spacing: 4px; font-size: 0.75rem; margin-bottom: 20px; display: block; transition: 0.3s; }
+        h1 { font-size: clamp(2rem, 8vw, 5.5rem); font-weight: 900; line-height: 1; text-transform: uppercase; margin-bottom: 40px; }
+        h1 span { color: var(--accent); transition: color 0.3s; }
 
-        .splash-logo {
-            font-size: 3rem;
-            width: 80px;
-            height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--accent);
-            color: #fff;
-            border-radius: 15px;
-            font-weight: 900;
-            box-shadow: 0 0 30px rgba(230, 0, 18, 0.5);
-        }
-
-        .splash-text {
-            font-weight: 900;
-            font-size: 1.5rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-        .splash-text span { color: var(--accent); }
-
-        /* --- BACKGROUND SCENE --- */
-        #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.35; pointer-events: none; }
-
-        /* --- NAVIGATION --- */
-        nav { 
-            height: 80px; display: flex; align-items: center; justify-content: space-between; 
-            padding: 0 5%; position: fixed; width: 100%; top: 0; z-index: 1000; 
-            background: rgba(5,5,5,0.85); backdrop-filter: blur(15px); border-bottom: 1px solid var(--border); 
-        }
-        .logo-wrap { display: flex; align-items: center; gap: 12px; }
-        .logo-icon { background: var(--accent); color: #fff; padding: 5px 12px; border-radius: 6px; font-weight: 900; font-size: 1.1rem; box-shadow: 0 0 15px rgba(230, 0, 18, 0.3); }
-        .logo-text { font-weight: 900; font-size: 1.2rem; letter-spacing: -0.5px; text-transform: uppercase; }
-        .logo-text span { color: var(--accent); }
-
-        .nav-links { display: flex; gap: 35px; list-style: none; align-items: center; }
-        @media (max-width: 800px) { .nav-links li:not(:last-child) { display: none; } }
-        .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
-        .nav-links a:hover { color: var(--text); }
-
-        /* --- HERO SECTION --- */
-        .hero { 
-            min-height: 100vh; 
-            display: flex; 
-            flex-direction: column;
-            justify-content: center; 
-            align-items: center; 
-            text-align: center; 
-            padding: 120px 8% 50px; 
-            position: relative; 
-        }
-
-        .hero-content { 
-            max-width: 900px;
-            z-index: 5;
-        }
-
-        .tag { color: var(--accent); text-transform: uppercase; font-weight: 900; letter-spacing: 3px; font-size: 0.75rem; margin-bottom: 20px; display: block; }
-        .hero h1 { font-size: clamp(2.5rem, 7vw, 5.5rem); font-weight: 900; text-transform: uppercase; letter-spacing: -2px; line-height: 1.05; margin-bottom: 30px; }
-        .hero h1 span { color: var(--accent); }
-        .hero p { color: var(--muted); max-width: 700px; margin: 0 auto 45px; font-size: 1.15rem; line-height: 1.6; }
-
-        .cta-btn { 
-            background: var(--accent); color: white; padding: 18px 45px; border-radius: 50px; 
-            text-decoration: none; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px;
-            box-shadow: 0 10px 30px rgba(230, 0, 18, 0.4); transition: 0.3s; cursor: pointer; border: none; display: inline-block;
-        }
-        .cta-btn:hover { transform: scale(1.05); background: #ff1a2b; box-shadow: 0 15px 40px rgba(230, 0, 18, 0.6); }
-
-        /* --- FLASH CARDS --- */
-        .cards-section { padding: 120px 8%; background: linear-gradient(to bottom, transparent, rgba(230,0,18,0.02)); border-top: 1px solid var(--border); }
-        .section-header { text-align: center; margin-bottom: 70px; }
-        .section-header h2 { font-size: 3rem; font-weight: 900; text-transform: uppercase; letter-spacing: -1px; }
-
-        .card-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 50px; }
-        .feature-card { 
-            background: var(--glass); border: 1px solid var(--border); padding: 50px 35px; 
-            border-radius: 30px; backdrop-filter: blur(25px); transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 15px;
-        }
-        .feature-card:hover { border-color: var(--accent); transform: translateY(-15px); background: rgba(255,255,255,0.05); }
-        .feature-card h3 { font-size: 1.4rem; font-weight: 900; text-transform: uppercase; color: #fff; line-height: 1.2; }
-        .feature-card p { color: var(--muted); font-size: 0.95rem; line-height: 1.7; }
+        /* --- THEME SELECTOR --- */
+        .theme-container { margin-bottom: 50px; }
+        .theme-label { font-weight: 900; font-size: 0.7rem; text-transform: uppercase; color: var(--muted); letter-spacing: 3px; margin-bottom: 25px; display: block; }
+        .theme-options { display: flex; gap: 30px; justify-content: center; align-items: center; }
         
-        /* Holographic sweep */
-        .feature-card::after { 
-            content: ""; position: absolute; top: 0; left: -150%; width: 100%; height: 100%; 
-            background: linear-gradient(90deg, transparent, rgba(230, 0, 18, 0.1), transparent); 
-            transform: skewX(-20deg); pointer-events: none; transition: none; 
+        .energy-core {
+            width: 45px; height: 45px; border-radius: 50%; cursor: pointer;
+            border: 3px solid transparent; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
         }
-        .feature-card:hover::after { left: 150%; transition: left 0.8s ease-in-out; }
+        .energy-core::after {
+            content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 65px; height: 65px; border-radius: 50%; border: 1px solid transparent; transition: 0.4s;
+        }
+        .energy-core.active::after { border-color: inherit; transform: translate(-50%, -50%) scale(1.1); box-shadow: 0 0 20px var(--accent-glow); }
+        .energy-core:hover { transform: scale(1.15); }
 
-        .reveal { opacity: 0; transform: translateY(40px); }
-        footer { padding: 60px 10%; text-align: center; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.85rem; letter-spacing: 1px; }
+        .cta-btn {
+            background: var(--accent); color: #fff; padding: 20px 50px; border-radius: 50px;
+            font-weight: 900; text-transform: uppercase; text-decoration: none;
+            box-shadow: 0 10px 30px var(--accent-glow); transition: 0.3s; border: none; cursor: pointer;
+            display: inline-block; font-size: 0.9rem;
+        }
+        .cta-btn:hover { transform: scale(1.05); filter: brightness(1.2); }
     </style>
 </head>
 <body>
-    <!-- CUSTOM LAUNCH SCREEN -->
-    <div id="splash-screen">
-        <div class="splash-content">
-            <div class="splash-logo" id="splash-q">Q</div>
-            <div class="splash-text">SUPER <span>QUANTUM</span></div>
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="hero-section">
+        <span class="tag" id="theme-tag">System Ready</span>
+        <h1>Computer Logic<br>Meets Real<br><span id="accent-text">Randomness</span></h1>
+
+        <div class="theme-container">
+            <span class="theme-label">Select Energy Profile</span>
+            <div class="theme-options">
+                <div class="energy-core active" style="background:#E60012; border-color:#E60012;" onclick="updateTheme('#E60012', 'Quantum Red', this)"></div>
+                <div class="energy-core" style="background:#007AFF; border-color:#007AFF;" onclick="updateTheme('#007AFF', 'Cyber Blue', this)"></div>
+                <div class="energy-core" style="background:#32D74B; border-color:#32D74B;" onclick="updateTheme('#32D74B', 'Neon Green', this)"></div>
+                <div class="energy-core" style="background:#BF5AF2; border-color:#BF5AF2;" onclick="updateTheme('#BF5AF2', 'Plasma Purple', this)"></div>
+            </div>
         </div>
+
+        <a href="/generator" class="cta-btn">Initialize Engine</a>
     </div>
 
-    <canvas id="canvas-bg"></canvas>
-    
-    <nav>
-        <div class="logo-wrap">
-            <div class="logo-icon">Q</div>
-            <div class="logo-text">SUPER <span>QUANTUM</span></div>
-        </div>
-        <ul class="nav-links">
-            <li><a href="#about">The Science</a></li>
-            <li><a href="#features">Features</a></li>
-            <li><a href="/generator" class="cta-btn" style="padding: 12px 25px; font-size: 0.7rem; border-radius: 5px;">GENERATE KEY</a></li>
-        </ul>
-    </nav>
-
-    <main>
-        <!-- HERO AREA -->
-        <section class="hero" id="about">
-            <div class="hero-content">
-                <span class="tag reveal">Fixed Rules vs Physical Laws</span>
-                <h1 class="reveal">PREDICTABLE LOGIC<br>MEETS PHYSICAL<br><span>CHAOS</span></h1>
-                <p class="reveal">Standard computers generate random numbers using <b>fixed rules</b>. Super Quantum generates randomness using <b>quantum behavior</b> sourced from vacuum fluctuations.</p>
-                <a href="/generator" class="cta-btn reveal" id="hero-cta">GENERATE KEY</a>
-            </div>
-        </section>
-
-        <!-- CAPABILITIES SECTION -->
-        <section class="cards-section" id="features">
-            <div class="section-header">
-                <span class="tag reveal">System Capabilities</span>
-                <h2 class="reveal">NEXT-GEN SECURITY</h2>
-            </div>
-            
-            <div class="card-container">
-                <div class="feature-card reveal">
-                    <h3>QUANTUM RANDOM SOURCE</h3>
-                    <p>Uses quantum systems to produce true random bits instead of software-based deterministic generators.</p>
-                </div>
-                <div class="feature-card reveal">
-                    <h3>KEY COMPARISON MODE</h3>
-                    <p>Compare normal computer-generated keys with quantum-generated keys side by side for integrity audit.</p>
-                </div>
-                <div class="feature-card reveal">
-                    <h3>KEY USAGE GUIDE</h3>
-                    <p>Suggests where a generated key can be safely used based on entropy strength and cryptographic rules.</p>
-                </div>
-                <div class="feature-card reveal">
-                    <h3>EASY TO USE</h3>
-                    <p>Professional grade security packaged in an intuitive high-end interface for instant key generation.</p>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer>
-        <p>© 2026 Super Quantum Built On QRNG Concept</p>
-    </footer>
-
     <script>
-        gsap.registerPlugin(ScrollTrigger);
-
-        // --- PWA SERVICE WORKER REGISTRATION (Root Path Fix) ---
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js');
-            });
-        }
-
-        // --- SPLASH SCREEN BEHAVIOR ---
-        gsap.to("#splash-q", { scale: 1.1, repeat: -1, yoyo: true, duration: 0.8, ease: "sine.inOut" });
-
-        window.addEventListener('load', () => {
-            const splashTimeline = gsap.timeline();
-            splashTimeline
-                .to(".splash-content", { opacity: 0, y: -40, duration: 0.6, delay: 0.8, ease: "power3.in" })
-                .to("#splash-screen", { yPercent: -100, duration: 0.8, ease: "expo.inOut" })
-                .set("#splash-screen", { display: "none" });
-        });
-
-        // --- BACKGROUND PARTICLES ---
-        const canvas = document.getElementById('canvas-bg'), ctx = canvas.getContext('2d');
+        const canvas = document.getElementById('bg-canvas'), ctx = canvas.getContext('2d');
         let particles = [];
+
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         window.addEventListener('resize', resize); resize();
 
+        function vibrate() { if(navigator.vibrate) navigator.vibrate(25); }
+
+        function updateTheme(color, name, el) {
+            vibrate();
+            document.documentElement.style.setProperty('--accent', color);
+            document.documentElement.style.setProperty('--accent-glow', color + '66'); // 40% alpha
+            localStorage.setItem('accent', color);
+            
+            document.getElementById('theme-tag').innerText = name;
+            document.querySelectorAll('.energy-core').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+
+            gsap.fromTo("#accent-text", { opacity: 0.5 }, { opacity: 1, duration: 0.4 });
+        }
+
+        // --- QUANTUM FIELD ANIMATION ---
         class Particle {
             constructor() {
-                this.x = Math.random()*canvas.width; this.y = Math.random()*canvas.height;
-                this.vx = (Math.random()-0.5)*1.2; this.vy = (Math.random()-0.5)*1.2;
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.8;
+                this.vy = (Math.random() - 0.5) * 0.8;
+                this.s = Math.random() * 2 + 1;
             }
-            update() { this.x+=this.vx; this.y+=this.vy; if(this.x<0||this.x>canvas.width)this.vx*=-1; if(this.y<0||this.y>canvas.height)this.vy*=-1; }
-            draw() { ctx.fillStyle='rgba(230,0,18,0.3)'; ctx.beginPath(); ctx.arc(this.x,this.y,1.5,0,Math.PI*2); ctx.fill(); }
+            update() {
+                this.x += this.vx; this.y += this.vy;
+                if(this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if(this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
         }
-        for(let i=0; i<120; i++) particles.push(new Particle());
-        function anim() { ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p=>{p.update(); p.draw();}); requestAnimationFrame(anim); }
-        anim();
 
-        // --- STAGGERED ENTRANCE REVEALS ---
-        gsap.utils.toArray(".reveal").forEach((el, i) => {
-            gsap.to(el, {
-                scrollTrigger: { trigger: el, start: "top 90%" },
-                opacity: 1, y: 0, duration: 1.2, stagger: 0.15, ease: "power4.out"
+        for(let i=0; i<100; i++) particles.push(new Particle());
+
+        function loop() {
+            ctx.clearRect(0,0,canvas.width, canvas.height);
+            const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+            
+            particles.forEach((p, i) => {
+                p.update();
+                ctx.fillStyle = accent;
+                ctx.globalAlpha = 0.4;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI*2); ctx.fill();
+
+                for(let j=i+1; j<particles.length; j++) {
+                    let p2 = particles[j];
+                    let dist = Math.sqrt((p.x-p2.x)**2 + (p.y-p2.y)**2);
+                    if(dist < 150) {
+                        ctx.strokeStyle = accent;
+                        ctx.globalAlpha = (1 - dist/150) * 0.2;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+                    }
+                }
             });
-        });
-
-        // CTA Parallax Effect
-        gsap.to("#hero-cta", {
-            y: 50,
-            ease: "none",
-            scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true }
-        });
+            requestAnimationFrame(loop);
+        }
+        loop();
+        
+        // Initial set from storage
+        const saved = localStorage.getItem('accent');
+        if(saved) {
+            const match = Array.from(document.querySelectorAll('.energy-core')).find(c => c.style.backgroundColor.includes(saved));
+            if(match) updateTheme(saved, "Energy Locked", match);
+        }
     </script>
 </body>
 </html>
