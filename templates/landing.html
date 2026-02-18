@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, user-scalable=0" />
     <title>Super Quantum | Entrance</title>
     <link rel="manifest" href="/static/manifest.json">
-    <meta name="theme-color" content="#E60012">
+    
+    <!-- Status Bar Integration: Set to background color to remove red block -->
+    <meta name="theme-color" content="#050505">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <!-- Professional Animation Suite -->
@@ -24,6 +28,51 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { height: 100%; width: 100%; overflow-x: hidden; scroll-behavior: smooth; background-color: var(--bg); color: var(--text); font-family: 'Roboto', sans-serif; }
+
+        /* --- CUSTOM ANIMATED LAUNCH SCREEN --- */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .splash-content {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .splash-logo {
+            font-size: 3rem;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent);
+            color: #fff;
+            border-radius: 15px;
+            font-weight: 900;
+            box-shadow: 0 0 30px rgba(230, 0, 18, 0.5);
+        }
+
+        .splash-text {
+            font-weight: 900;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .splash-text span { color: var(--accent); }
 
         /* --- BACKGROUND SCENE --- */
         #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.35; pointer-events: none; }
@@ -101,6 +150,14 @@
     </style>
 </head>
 <body>
+    <!-- CUSTOM LAUNCH SCREEN -->
+    <div id="splash-screen">
+        <div class="splash-content">
+            <div class="splash-logo" id="splash-q">Q</div>
+            <div class="splash-text">SUPER <span>QUANTUM</span></div>
+        </div>
+    </div>
+
     <canvas id="canvas-bg"></canvas>
     
     <nav>
@@ -160,6 +217,29 @@
 
     <script>
         gsap.registerPlugin(ScrollTrigger);
+
+        // --- SPLASH SCREEN BEHAVIOR ---
+        // Pulse animation for the splash logo while loading
+        gsap.to("#splash-q", { scale: 1.1, repeat: -1, yoyo: true, duration: 0.8, ease: "sine.inOut" });
+
+        window.addEventListener('load', () => {
+            const splashTimeline = gsap.timeline();
+            
+            splashTimeline
+                .to(".splash-content", { 
+                    opacity: 0, 
+                    y: -40, 
+                    duration: 0.6, 
+                    delay: 0.8, // Brief pause to show identity
+                    ease: "power3.in" 
+                })
+                .to("#splash-screen", { 
+                    yPercent: -100, 
+                    duration: 0.8, 
+                    ease: "expo.inOut" 
+                })
+                .set("#splash-screen", { display: "none" });
+        });
 
         // --- BACKGROUND PARTICLES ---
         const canvas = document.getElementById('canvas-bg'), ctx = canvas.getContext('2d');
