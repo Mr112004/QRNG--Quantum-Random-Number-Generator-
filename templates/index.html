@@ -13,7 +13,7 @@
         :root {
             --bg: #050505; --card: #0c0c0c; --accent: #E60012; --accent-glow: rgba(230, 0, 18, 0.4); --text: #ffffff;
             --muted: #9ca3af; --border: rgba(255, 255, 255, 0.08); --canvas-bg: #000;
-            --success: #22c55e; --warning: #f59e0b;
+            --success: #22c55e; --warning: #f59e0b; --danger: #ef4444;
             --lock-body: #FFCC00; --lock-shackle: #E0E0E0; --lock-hole: #000000;
             --header-bg: #080808;
         }
@@ -70,6 +70,7 @@
         .status-badge.active { border-color: var(--success); color: var(--success); }
         .live-dot { width: 6px; height: 6px; background: var(--muted); border-radius: 50%; transition: 0.3s; }
         .status-badge.active .live-dot { background: var(--success); animation: blink 1s infinite; box-shadow: 0 0 8px var(--success); }
+        
         @keyframes blink { 50% { opacity: 0.3; } }
 
         /* PERFECT LOCK */
@@ -80,8 +81,12 @@
         /* CONTROLS */
         .controls-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px; padding: 25px; }
         @media (max-width: 550px) { .controls-grid { grid-template-columns: 1fr; } }
-        .control-label { font-weight: 900; color: var(--muted); font-size: 0.7rem; text-transform: uppercase; margin-bottom: 10px; display: block; letter-spacing: 1px; }
+        .control-label { font-weight: 900; color: var(--muted); font-size: 0.65rem; text-transform: uppercase; margin-bottom: 10px; display: block; letter-spacing: 1px; }
         
+        .ai-select { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 12px; font-weight: 900; font-size: 0.8rem; outline: none; margin-bottom: 20px; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
+        .ai-select:focus { border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+        .ai-select option { background: var(--card); color: var(--text); }
+
         .len-btn-group { display: flex; flex-wrap: wrap; gap: 6px; }
         .len-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: 10px; cursor: pointer; font-weight: 900; font-size: 0.8rem; transition: 0.2s; }
         .len-btn.active { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); color: #fff; }
@@ -113,12 +118,20 @@
         .btn-gen:active { transform: scale(0.96); }
         .btn-gen span { font-size: 0.6rem; opacity: 0.8; font-weight: 700; letter-spacing: 0; }
 
-        /* ACTION ROW (QR, Copy, NATO) */
+        /* ACTION ROW (QR, Copy, NATO, Split) */
         .action-row { display: flex; gap: 10px; flex-wrap: wrap; }
         .action-btn { flex: 1; min-width: 80px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px 10px; color: var(--muted); font-size: 0.7rem; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 6px; }
         .action-btn:hover { background: rgba(255,255,255,0.08); color: var(--text); }
         .action-btn:active { transform: scale(0.95); }
         .action-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+        /* SPLIT KEY DISPLAY */
+        .split-display { display: none; margin-top: 15px; gap: 10px; }
+        .split-part { flex: 1; background: rgba(0,0,0,0.3); border: 1px dashed var(--accent); padding: 15px; border-radius: 12px; font-family: 'JetBrains Mono'; font-size: 0.85rem; word-break: break-all; text-align: center; cursor: pointer; transition: 0.2s; position: relative; }
+        .split-part:hover { background: rgba(255,255,255,0.05); border-style: solid; box-shadow: 0 0 15px var(--accent-glow); }
+        .split-part:active { transform: scale(0.95); }
+        .split-label { font-size: 0.55rem; color: var(--accent); font-weight: 900; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; pointer-events: none; }
+        .split-copy-hint { display: block; font-size: 0.5rem; color: var(--muted); margin-top: 6px; text-transform: uppercase; font-family: 'Roboto', sans-serif; letter-spacing: 1px; pointer-events: none; }
 
         /* --- SIDEBAR MODULES --- */
         .sidebar-title { font-weight: 900; color: var(--muted); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 8px; letter-spacing: 1px; }
@@ -138,7 +151,13 @@
         #qr-canvas-element { border: 10px solid #fff; border-radius: 10px; }
         .close-modal { margin-top: 20px; background: rgba(255,255,255,0.1); border: none; padding: 10px 30px; border-radius: 50px; color: #fff; font-weight: 900; cursor: pointer; transition: 0.2s; }
 
-        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--success); color: #fff; padding: 12px 25px; border-radius: 50px; font-weight: 900; font-size: 0.8rem; z-index: 10000; display: none; box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4); }
+        /* --- RISK ANALYZER (FORENSICS) --- */
+        .risk-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .risk-box { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px; padding: 15px 10px; text-align: center; }
+        .risk-label { font-size: 0.55rem; color: var(--muted); text-transform: uppercase; font-weight: 900; letter-spacing: 1px; margin-bottom: 5px; }
+        .risk-val { font-family: 'JetBrains Mono'; font-size: 0.9rem; font-weight: 900; color: var(--accent); }
+
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--success); color: #fff; padding: 12px 25px; border-radius: 50px; font-weight: 900; font-size: 0.8rem; z-index: 10000; display: none; box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4); text-align: center; }
     </style>
 </head>
 <body data-theme="dark">
@@ -153,7 +172,7 @@
         </div>
     </div>
 
-    <div id="toast" class="toast">✓ ACTION SUCCESS</div>
+    <div id="toast" class="toast">✓ ACTION SUCCESS<div id="toast-sub" style="font-size:0.6rem; opacity:0.8; margin-top:4px; display:none;"></div></div>
 
     <!-- HEADER -->
     <header>
@@ -212,6 +231,7 @@
             <div class="card">
                 <div class="card-image-area">
                     <div class="status-badge" id="net-status"><div class="live-dot"></div> <span id="net-text">CONNECTING API...</span></div>
+                    
                     <canvas id="v-canvas" style="width:100%; height:100%"></canvas>
                     
                     <div class="lock-container">
@@ -230,11 +250,23 @@
                 </div>
 
                 <div class="controls-grid">
+                    <div style="grid-column: 1 / -1;">
+                        <span class="control-label">Context-Aware Presets</span>
+                        <select class="ai-select" id="preset-select">
+                            <option value="custom">Custom Configuration</option>
+                            <option value="crypto">Crypto Wallet Seed (64 chars, high entropy)</option>
+                            <option value="api">API Server Token (32 chars, strictly alphanumeric)</option>
+                            <option value="wifi">Wi-Fi Router (24 chars, no ambiguous chars)</option>
+                            <option value="pin">Secure PIN (8 digits)</option>
+                        </select>
+                    </div>
+
                     <div>
                         <span class="control-label">Key Length</span>
                         <div class="len-btn-group">
                             <button class="len-btn" data-len="8">8</button>
                             <button class="len-btn active" data-len="16">16</button>
+                            <button class="len-btn" data-len="24">24</button>
                             <button class="len-btn" data-len="32">32</button>
                             <button class="len-btn" data-len="64">64</button>
                         </div>
@@ -259,18 +291,25 @@
 
                     <!-- ACTION ROW -->
                     <div class="action-row">
-                        <button class="action-btn" onclick="copyKey()"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> COPY</button>
-                        <button class="action-btn" onclick="showQR()"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> QR CODE</button>
+                        <button class="action-btn" onclick="copyKey()"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> COPY (SECURE)</button>
+                        <button class="action-btn" onclick="showQR()"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> QR Bridge</button>
+                        <button class="action-btn" id="split-toggle"><svg viewBox="0 0 24 24"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg> SPLIT KEY</button>
                         <button class="action-btn" id="nato-toggle"><svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="22"></line></svg> NATO</button>
                     </div>
+                    
                     <div id="nato-display" style="display:none; margin-top:15px; padding:15px; background:rgba(255,255,255,0.03); border-radius:12px; font-size:0.75rem; color:var(--muted); line-height:1.6; font-family:monospace;"></div>
+                    
+                    <div class="split-display" id="split-display">
+                        <div class="split-part" onclick="copySplit('split-a')" title="Copy Part A"><div class="split-label">Part A</div><div id="split-a"></div><span class="split-copy-hint">Tap to copy</span></div>
+                        <div class="split-part" onclick="copySplit('split-b')" title="Copy Part B"><div class="split-label">Part B</div><div id="split-b"></div><span class="split-copy-hint">Tap to copy</span></div>
+                    </div>
                 </div>
             </div>
             
-            <!-- SECURITY LAB: MATHEMATICAL PROOF -->
+            <!-- SECURITY LAB: RISK INDEX -->
             <div class="card" style="padding:30px;">
-                <h2 style="font-size:1.4rem; font-weight:900; text-transform:uppercase;">Security Lab Proof</h2>
-                <input type="text" id="lab-input" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:12px; padding:18px; color:var(--text); font-family:'JetBrains Mono'; margin:20px 0 10px; outline:none;" placeholder="Paste key to verify Shannon Entropy...">
+                <h2 style="font-size:1.4rem; font-weight:900; text-transform:uppercase;">Security Lab Forensics</h2>
+                <input type="text" id="lab-input" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:12px; padding:18px; color:var(--text); font-family:'JetBrains Mono'; margin:20px 0 10px; outline:none;" placeholder="Paste key to verify Shannon Entropy & Crack Time...">
                 
                 <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-size:0.7rem; color:var(--muted); font-weight:900;">
                     <span>Shannon Entropy (H): <span id="lab-h" style="color:var(--text)">0.00</span></span>
@@ -278,9 +317,29 @@
                 </div>
 
                 <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:16px; padding:20px; text-align:center;">
-                    <div style="font-size:2.2rem; font-weight:900; font-family:'JetBrains Mono';" id="lab-rating">NONE</div>
+                    <div style="font-size:1.5rem; font-weight:900; font-family:'JetBrains Mono';" id="lab-rating">NONE</div>
                     <div style="font-size:0.75rem; font-weight:800; text-transform:uppercase; color:var(--muted); margin-top:5px;">Origin: <span id="lab-origin">...</span></div>
                 </div>
+
+                <!-- RISK ANALYZER UI -->
+                <div style="margin-top: 25px;">
+                    <div style="font-size: 0.75rem; font-weight: 900; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">Estimated Time To Crack</div>
+                    <div class="risk-grid">
+                        <div class="risk-box">
+                            <div class="risk-label">Standard PC</div>
+                            <div class="risk-val" id="crack-pc">0s</div>
+                        </div>
+                        <div class="risk-box">
+                            <div class="risk-label">Supercomputer</div>
+                            <div class="risk-val" id="crack-super">0s</div>
+                        </div>
+                        <div class="risk-box">
+                            <div class="risk-label">Quantum (Grover)</div>
+                            <div class="risk-val" id="crack-quantum">0s</div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </section>
 
@@ -292,6 +351,7 @@
         
         let activeLen = 16, historyArr = [];
         let apiConnected = false;
+        let clipboardTimeout;
 
         // --- AUDIO & HAPTICS ---
         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -334,7 +394,30 @@
             soundClick(); vibrate(15);
             document.querySelectorAll('.len-btn').forEach(x => x.classList.remove('active')); 
             b.classList.add('active'); activeLen = parseInt(b.dataset.len);
+            document.getElementById('preset-select').value = 'custom'; // reset preset if manual change
         });
+
+        // --- CONTEXT-AWARE AI PRESETS ---
+        document.getElementById('preset-select').onchange = (e) => {
+            soundClick(); vibrate();
+            const val = e.target.value;
+            const setUI = (len, u, l, n, s, amb) => {
+                document.querySelectorAll('.len-btn').forEach(x => x.classList.remove('active'));
+                const btn = document.querySelector(`.len-btn[data-len="${len}"]`);
+                if(btn) btn.classList.add('active');
+                activeLen = len;
+                document.getElementById('c-up').checked = u;
+                document.getElementById('c-lo').checked = l;
+                document.getElementById('c-nu').checked = n;
+                document.getElementById('c-sy').checked = s;
+                document.getElementById('c-ambig').checked = amb;
+            };
+
+            if(val === 'crypto') setUI(64, true, true, true, true, false);
+            if(val === 'api') setUI(32, true, true, true, false, true);
+            if(val === 'wifi') setUI(24, true, true, true, true, true);
+            if(val === 'pin') setUI(8, false, false, true, false, false);
+        };
 
         // --- NETWORK SIMULATION / CHECK ---
         setTimeout(() => {
@@ -374,9 +457,41 @@
 
         // --- SHANNON ENTROPY MATH ---
         function calcEntropy(str) {
+            if(!str) return 0;
             const len = str.length;
             const frequencies = Array.from(str).reduce((freq, c) => (freq[c] = (freq[c] || 0) + 1, freq), {});
             return Object.values(frequencies).reduce((sum, f) => sum - (f/len) * Math.log2(f/len), 0);
+        }
+
+        // --- RISK INDEX CALCULATOR ---
+        function formatCrackTime(seconds) {
+            if(seconds < 1) return "Instant";
+            if(seconds < 60) return `${Math.floor(seconds)}s`;
+            if(seconds < 3600) return `${Math.floor(seconds/60)}m`;
+            if(seconds < 86400) return `${Math.floor(seconds/3600)}h`;
+            if(seconds < 31536000) return `${Math.floor(seconds/86400)}d`;
+            let years = seconds / 31536000;
+            if(years > 1e100) return "Infinity";
+            if(years > 1e6) return `${(years / 1e6).toExponential(1)} Yrs`;
+            return `${Math.floor(years).toLocaleString()} Yrs`;
+        }
+
+        function calculateRisk(length, poolSize) {
+            if(length === 0 || poolSize === 0) return { pc: '0s', super: '0s', q: '0s' };
+            const combinations = Math.pow(poolSize, length);
+            
+            // Standard PC: ~10 Billion guesses/sec
+            const timePC = combinations / 10000000000;
+            // Supercomputer: ~1000 Trillion guesses/sec
+            const timeSuper = combinations / 1000000000000000;
+            // Quantum Computer (Grover's Algorithm estimation sqrt(C))
+            const timeQuantum = Math.sqrt(combinations) / 100000000;
+
+            return {
+                pc: formatCrackTime(timePC),
+                super: formatCrackTime(timeSuper),
+                q: formatCrackTime(timeQuantum)
+            };
         }
 
         // --- GENERATION LOGIC ---
@@ -409,13 +524,11 @@
                     const data = await res.json();
                     if(data.origin === 'Quantum') {
                         origin = "ANU Quantum Lab";
-                        // We still map it to our length and character set to ensure user choices are respected
                         qKey = Array.from({length:activeLen}, () => pool.charAt(Math.floor(Math.random() * pool.length))).join('');
                     }
                 }
             } catch(e) { console.log("Falling back to local algorithm generator."); }
 
-            // Local Generation Fallback/Mapping
             if(!qKey) {
                 qKey = Array.from({length:activeLen}, () => pool.charAt(Math.floor(Math.random() * pool.length))).join('');
             }
@@ -432,26 +545,34 @@
                 if(iterations >= qKey.length) {
                     clearInterval(interval);
                     disp.innerHTML = qKey;
-                    finishGeneration(qKey, origin);
+                    finishGeneration(qKey, origin, pool.length);
                 }
             }, 30);
         };
 
-        function finishGeneration(qKey, origin) {
+        function finishGeneration(qKey, origin, poolSize) {
             soundSuccess();
             gsap.to("#shackle", { y: 0, rotation: 0, duration: 0.6, ease: "bounce.out" });
             
-            // Update Audit
+            // Update Audit & Math Proof
             const H = calcEntropy(qKey);
             const totalBits = Math.floor(H * qKey.length);
             document.getElementById('audit-bits').innerText = totalBits;
             
-            // Update Comparison (Visual)
+            // Update Comparison
             document.getElementById('comp-math').innerText = qKey.split('').reverse().join('');
             document.getElementById('comp-nature').innerText = qKey;
 
-            // Hide NATO if open
+            // Trigger Lab Forensics Auto-Run
+            document.getElementById('lab-input').value = qKey;
+            document.getElementById('lab-input').dispatchEvent(new Event('input'));
+            
+            // Inject pool size trick for risk calculation
+            document.getElementById('lab-input').setAttribute('data-poolsize', poolSize);
+
+            // Hide Action overlays
             document.getElementById('nato-display').style.display = 'none';
+            document.getElementById('split-display').style.display = 'none';
 
             // Add History
             historyArr.unshift({key: qKey, origin: origin});
@@ -465,7 +586,7 @@
                 const div = document.createElement('div');
                 div.className = "history-item";
                 div.innerHTML = `<span class="history-brand">Q</span> <span>${item.key.substring(0, 20)}${item.key.length > 20 ? '...' : ''}</span>`;
-                div.onclick = () => { soundClick(); navigator.clipboard.writeText(item.key); vibrate(20); showToast("COPIED"); };
+                div.onclick = () => { soundClick(); navigator.clipboard.writeText(item.key); vibrate(20); showCopyToast(); };
                 hList.appendChild(div);
             });
         }
@@ -477,7 +598,6 @@
             soundClick(); 
             vibrate(20); 
             
-            // Create a temporary textarea to copy just the text without the span element
             const tempTextArea = document.createElement("textarea");
             tempTextArea.value = v;
             document.body.appendChild(tempTextArea);
@@ -485,25 +605,103 @@
             
             try {
                 document.execCommand('copy');
-                showToast("COPIED TO CLIPBOARD");
+                showCopyToast();
+            } catch (err) {
+                console.error('Failed to copy text', err);
+            }
+            document.body.removeChild(tempTextArea);
+        }
+
+        // Clipboard Protection Logic
+        function showCopyToast() { 
+            const t = document.getElementById('toast'); 
+            const sub = document.getElementById('toast-sub');
+            t.childNodes[0].nodeValue = "✓ COPIED TO SECURE MEMORY";
+            sub.style.display = 'block';
+            t.style.display = 'block'; 
+            
+            let timeLeft = 30;
+            sub.innerText = `Auto-clearing clipboard in ${timeLeft}s...`;
+            
+            clearTimeout(clipboardTimeout);
+            
+            let countInterval = setInterval(() => {
+                timeLeft--;
+                sub.innerText = `Auto-clearing clipboard in ${timeLeft}s...`;
+                if(timeLeft <= 0) clearInterval(countInterval);
+            }, 1000);
+
+            clipboardTimeout = setTimeout(() => {
+                const tempTextArea = document.createElement("textarea");
+                tempTextArea.value = " "; // Blank out clipboard
+                document.body.appendChild(tempTextArea);
+                tempTextArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempTextArea);
+                
+                t.childNodes[0].nodeValue = "🛡️ CLIPBOARD WIPED";
+                sub.style.display = 'none';
+                t.style.background = 'var(--muted)';
+                setTimeout(() => { t.style.display='none'; t.style.background='var(--success)'; }, 1500);
+            }, 30000);
+        }
+
+        document.getElementById('clear-h').onclick = () => { soundClick(); vibrate(); historyArr = []; renderHistory(); };
+
+        // Split Key Logic
+        document.getElementById('split-toggle').onclick = () => {
+            const val = disp.innerText;
+            if(val === 'READY' || !val) return;
+            soundClick(); vibrate();
+            const sd = document.getElementById('split-display');
+            if(sd.style.display === 'flex') { sd.style.display = 'none'; return; }
+            sd.style.display = 'flex';
+            
+            const mid = Math.floor(val.length / 2);
+            document.getElementById('split-a').innerText = val.slice(0, mid);
+            document.getElementById('split-b').innerText = val.slice(mid);
+        };
+
+        function copySplit(id) {
+            const el = document.getElementById(id);
+            if(!el || !el.innerText) return;
+            soundClick();
+            vibrate(20);
+            
+            const tempTextArea = document.createElement("textarea");
+            tempTextArea.value = el.innerText;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showToast("✓ PART COPIED");
             } catch (err) {
                 console.error('Failed to copy text', err);
             }
             
             document.body.removeChild(tempTextArea);
         }
-        function showToast(m) { const t = document.getElementById('toast'); t.innerText=m; t.style.display = 'block'; setTimeout(()=>t.style.display='none', 2000); }
-        document.getElementById('clear-h').onclick = () => { soundClick(); vibrate(); historyArr = []; renderHistory(); };
 
         // Export .ENV
         function exportEnv() {
-            if(historyArr.length === 0) return showToast("NO KEYS TO EXPORT");
+            if(historyArr.length === 0) {
+                const t = document.getElementById('toast');
+                t.childNodes[0].nodeValue = "NO KEYS TO EXPORT";
+                document.getElementById('toast-sub').style.display = 'none';
+                t.style.background = 'var(--accent)'; t.style.display = 'block'; setTimeout(()=>t.style.display='none', 1500);
+                return;
+            }
             soundClick(); vibrate(30);
-            let content = historyArr.map((k, i) => `QUANTUM_KEY_${i+1}=${k.key}`).join('\n');
+            let content = historyArr.map((k, i) => `QUANTUM_KEY_${i+1}="${k.key}"`).join('\n');
             let blob = new Blob([content], {type: 'text/plain'});
             let a = document.createElement('a');
             a.href = URL.createObjectURL(blob); a.download = 'quantum_secrets.env'; a.click();
-            showToast("EXPORTED .ENV");
+            
+            const t = document.getElementById('toast');
+            t.childNodes[0].nodeValue = "✓ EXPORTED .ENV";
+            document.getElementById('toast-sub').style.display = 'none';
+            t.style.background = 'var(--success)'; t.style.display = 'block'; setTimeout(()=>t.style.display='none', 1500);
         }
 
         // QR Code Logic
@@ -534,29 +732,48 @@
             nd.innerText = val.split('').map(c => natoDict[c.toUpperCase()] || `[${c}]`).join(' - ');
         };
 
-        // Lab Math Proof
+        // Lab Math Proof & Risk Analyzer
         document.getElementById('lab-input').oninput = (e) => {
             const val = e.target.value;
             const rating = document.getElementById('lab-rating');
             const origin = document.getElementById('lab-origin');
+            
             if(!val) { 
                 rating.innerText = "NONE"; origin.innerText="..."; 
                 document.getElementById('lab-h').innerText = "0.00"; document.getElementById('lab-bits').innerText = "0";
+                document.getElementById('crack-pc').innerText = "0s";
+                document.getElementById('crack-super').innerText = "0s";
+                document.getElementById('crack-quantum').innerText = "0s";
                 return; 
             }
             
+            // Shannon Entropy
             const H = calcEntropy(val);
             const totalBits = Math.floor(H * val.length);
             
             document.getElementById('lab-h').innerText = H.toFixed(3);
             document.getElementById('lab-bits').innerText = totalBits;
 
+            // Rating
             const isQuantum = historyArr.some(h => h.key === val);
             origin.innerText = isQuantum ? "Quantum Source" : "Algorithmic";
             origin.style.color = isQuantum ? "var(--success)" : "var(--accent)";
             
-            rating.innerText = totalBits >= 128 ? "MAXIMUM" : totalBits >= 64 ? "SECURE" : "WEAK";
-            rating.style.color = totalBits >= 64 ? "var(--success)" : "var(--accent)";
+            rating.innerText = totalBits >= 128 ? "MILITARY GRADE" : totalBits >= 64 ? "SECURE" : "WEAK";
+            rating.style.color = totalBits >= 64 ? "var(--success)" : "var(--danger)";
+
+            // Risk Analyzer (Crack Times)
+            // Attempt to get pool size from data attribute, otherwise estimate 62
+            let poolSize = parseInt(e.target.getAttribute('data-poolsize')) || 62; 
+            const risks = calculateRisk(val.length, poolSize);
+            
+            document.getElementById('crack-pc').innerText = risks.pc;
+            document.getElementById('crack-super').innerText = risks.super;
+            document.getElementById('crack-quantum').innerText = risks.q;
+            
+            // Color code risks
+            document.getElementById('crack-pc').style.color = risks.pc.includes('s') || risks.pc.includes('m') ? "var(--danger)" : "var(--accent)";
+            document.getElementById('crack-quantum').style.color = risks.q.includes('Yrs') || risks.q.includes('Infinity') ? "var(--success)" : "var(--accent)";
         };
     </script>
 </body>
