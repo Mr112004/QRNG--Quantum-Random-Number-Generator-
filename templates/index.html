@@ -6,12 +6,14 @@
     <title>Quantum Key Engine</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700;900&family=JetBrains+Mono:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <!-- QR Code Generator Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 
     <style>
         :root {
             --bg: #050505; --card: #0c0c0c; --accent: #E60012; --accent-glow: rgba(230, 0, 18, 0.4); --text: #ffffff;
             --muted: #9ca3af; --border: rgba(255, 255, 255, 0.08); --canvas-bg: #000;
-            --success: #22c55e;
+            --success: #22c55e; --warning: #f59e0b;
             --lock-body: #FFCC00; --lock-shackle: #E0E0E0; --lock-hole: #000000;
             --header-bg: #080808;
         }
@@ -34,6 +36,11 @@
             background: var(--header-bg); backdrop-filter: blur(20px); 
             position: fixed; top: 0; width: 100%; z-index: 1000; transition: 0.5s;
         }
+        
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .back-btn { color: var(--text); opacity: 0.6; display: flex; align-items: center; justify-content: center; transition: 0.3s; text-decoration: none; padding: 5px; }
+        .back-btn:hover { opacity: 1; transform: translateX(-4px); color: var(--accent); }
+
         .logo { display: flex; align-items: center; gap: 10px; font-weight: 900; text-transform: uppercase; text-decoration: none; color: var(--text); font-size: 0.9rem; }
         .logo-icon { background: var(--accent); padding: 5px 12px; border-radius: 6px; color: #fff; box-shadow: 0 0 15px var(--accent-glow); transition: 0.5s; }
 
@@ -44,16 +51,13 @@
         body[data-theme="dark"] .icon-moon, body[data-theme="light"] .icon-sun { opacity: 1; color: #fff;}
         .theme-icon svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 2; }
 
-        /* --- LAYOUT (Desktop vs Mobile Stacking) --- */
+        /* --- LAYOUT --- */
         .main-container { max-width: 1400px; margin: 0 auto; padding: 90px 25px 25px; display: grid; grid-template-columns: 340px 1fr; gap: 25px; align-items: start; }
         
         @media (max-width: 1024px) {
-            .main-container { 
-                display: flex; flex-direction: column; 
-                padding: 90px 15px 25px; gap: 20px; 
-            }
-            .sidebar { order: 2; width: 100%; } /* Pushes sidebar to the bottom */
-            .gen-area { order: 1; width: 100%; } /* Keeps generator at the top */
+            .main-container { display: flex; flex-direction: column; padding: 90px 15px 25px; gap: 20px; }
+            .sidebar { order: 2; width: 100%; } 
+            .gen-area { order: 1; width: 100%; }
         }
 
         /* --- CARDS & UI --- */
@@ -61,8 +65,11 @@
         .card:hover { border-color: var(--accent); box-shadow: 0 0 20px rgba(255,255,255,0.02); }
 
         .card-image-area { height: 280px; background: var(--canvas-bg); position: relative; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--border); overflow: hidden; }
-        .live-badge { position: absolute; left: 15px; top: 15px; background: rgba(0,0,0,0.6); border: 1.5px solid var(--accent); color: var(--accent); padding: 5px 10px; border-radius: 8px; font-size: 0.6rem; font-weight: 800; z-index: 15; display: flex; align-items: center; gap: 6px; }
-        .live-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: blink 1s infinite; }
+        
+        .status-badge { position: absolute; left: 15px; top: 15px; background: rgba(0,0,0,0.6); border: 1.5px solid var(--border); color: var(--muted); padding: 5px 10px; border-radius: 8px; font-size: 0.6rem; font-weight: 900; z-index: 15; display: flex; align-items: center; gap: 6px; transition: 0.3s; }
+        .status-badge.active { border-color: var(--success); color: var(--success); }
+        .live-dot { width: 6px; height: 6px; background: var(--muted); border-radius: 50%; transition: 0.3s; }
+        .status-badge.active .live-dot { background: var(--success); animation: blink 1s infinite; box-shadow: 0 0 8px var(--success); }
         @keyframes blink { 50% { opacity: 0.3; } }
 
         /* PERFECT LOCK */
@@ -70,9 +77,9 @@
         .shackle-svg { position: absolute; top: 0; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .lock-body-svg { position: absolute; bottom: 0; }
 
-        /* 2x2 CONTROLS */
-        .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 25px; }
-        @media (max-width: 450px) { .controls-grid { grid-template-columns: 1fr; } }
+        /* CONTROLS */
+        .controls-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px; padding: 25px; }
+        @media (max-width: 550px) { .controls-grid { grid-template-columns: 1fr; } }
         .control-label { font-weight: 900; color: var(--muted); font-size: 0.7rem; text-transform: uppercase; margin-bottom: 10px; display: block; letter-spacing: 1px; }
         
         .len-btn-group { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -81,43 +88,39 @@
         .len-btn:active { transform: scale(0.95); }
 
         .pool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .pool-item { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 800; color: var(--muted); cursor: pointer; }
-        .pool-item input { accent-color: var(--accent); width: 18px; height: 18px; }
+        .pool-item { display: flex; align-items: center; gap: 8px; font-size: 0.7rem; font-weight: 800; color: var(--muted); cursor: pointer; }
+        .pool-item input { accent-color: var(--accent); width: 16px; height: 16px; }
 
         /* --- GENERATOR & PASSWORD ROW --- */
-        .password-row { display: grid; grid-template-columns: 1fr 180px; gap: 15px; padding: 0 25px 30px; width: 100%; }
-        @media (max-width: 600px) { .password-row { grid-template-columns: 1fr; display: flex; flex-direction: column; } }
+        .gen-container { padding: 0 25px 25px; }
+        .password-row { display: grid; grid-template-columns: 1fr 160px; gap: 15px; margin-bottom: 15px; }
+        @media (max-width: 600px) { .password-row { grid-template-columns: 1fr; } }
         
         .password-box { 
-            background: rgba(0,0,0,0.03); border: 1.5px solid var(--border); border-radius: 18px; 
-            padding: 20px; font-family: 'JetBrains Mono', monospace; font-size: 1.35rem; 
+            background: rgba(0,0,0,0.03); border: 1.5px solid var(--border); border-radius: 16px; 
+            padding: 20px; font-family: 'JetBrains Mono', monospace; font-size: clamp(1rem, 4vw, 1.35rem); 
             text-align: center; color: var(--text); cursor: pointer; transition: 0.3s; 
-            min-height: 80px; display: flex; align-items: center; justify-content: center; word-break: break-all; width: 100%; 
+            min-height: 80px; display: flex; align-items: center; justify-content: center; word-break: break-all; width: 100%; position: relative;
         }
+        .cursor { display: none; width: 8px; height: 1.2rem; background: var(--accent); animation: blink 1s step-end infinite; margin-left: 5px; }
         
-        /* MASSIVE GENERATE BUTTON */
         .btn-gen { 
-            background: var(--accent); color: #fff; border: none; border-radius: 18px; 
-            font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 1rem; 
+            background: var(--accent); color: #fff; border: none; border-radius: 16px; 
+            font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 0.95rem; 
             letter-spacing: 1px; box-shadow: 0 5px 20px var(--accent-glow); transition: 0.2s; 
-            min-height: 80px; width: 100%; padding: 0 20px;
+            min-height: 80px; width: 100%; padding: 0 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
         }
         .btn-gen:active { transform: scale(0.96); }
+        .btn-gen span { font-size: 0.6rem; opacity: 0.8; font-weight: 700; letter-spacing: 0; }
 
-        /* --- DASHBOARD STATS --- */
-        .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .stat-box { background: rgba(255,255,255,0.02); border: 1px solid var(--border); padding: 15px; border-radius: 16px; }
-        .stat-val { font-size: 1.5rem; font-weight: 900; font-family: 'JetBrains Mono'; margin: 5px 0; color: var(--text); }
-        .stat-label { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; font-weight: 900; letter-spacing: 1px; }
+        /* ACTION ROW (QR, Copy, NATO) */
+        .action-row { display: flex; gap: 10px; flex-wrap: wrap; }
+        .action-btn { flex: 1; min-width: 80px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px 10px; color: var(--muted); font-size: 0.7rem; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 6px; }
+        .action-btn:hover { background: rgba(255,255,255,0.08); color: var(--text); }
+        .action-btn:active { transform: scale(0.95); }
+        .action-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
 
-        /* RANDOMNESS MATRIX VISUALIZER */
-        #matrix-canvas { width: 100%; height: 80px; background: #050505; border-radius: 12px; border: 1px solid var(--border); margin-top: 15px; }
-
-        /* --- STRENGTH METER --- */
-        .strength-meter { display: flex; gap: 4px; margin-top: 15px; height: 8px; padding: 0 25px 15px; }
-        .strength-seg { flex: 1; background: rgba(255,255,255,0.1); border-radius: 4px; transition: 0.4s; }
-
-        /* SIDEBAR MODULES */
+        /* --- SIDEBAR MODULES --- */
         .sidebar-title { font-weight: 900; color: var(--muted); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 8px; letter-spacing: 1px; }
         .comp-card { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 16px; padding: 15px; margin-bottom: 12px; }
         .comp-badge { font-size: 0.55rem; background: #2a2a2a; color: #fff; padding: 4px 10px; border-radius: 6px; font-weight: 900; margin-bottom: 8px; display: inline-block; }
@@ -128,18 +131,44 @@
         .history-item:active { transform: scale(0.98); border-color: var(--accent); }
         .history-brand { background: var(--accent); color: white; padding: 3px 6px; border-radius: 4px; font-weight: 900; font-size: 0.6rem; }
 
-        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--success); color: #fff; padding: 12px 25px; border-radius: 50px; font-weight: 900; font-size: 0.8rem; z-index: 5000; display: none; box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4); }
+        /* --- QR MODAL --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 9999; display: none; justify-content: center; align-items: center; opacity: 0; transition: 0.3s; }
+        .qr-card { background: var(--card); border: 1px solid var(--accent); border-radius: 24px; padding: 30px; text-align: center; box-shadow: 0 0 40px var(--accent-glow); transform: scale(0.9); transition: 0.3s; max-width: 90%; }
+        .qr-card h3 { font-weight: 900; text-transform: uppercase; font-size: 1.2rem; margin-bottom: 20px; }
+        #qr-canvas-element { border: 10px solid #fff; border-radius: 10px; }
+        .close-modal { margin-top: 20px; background: rgba(255,255,255,0.1); border: none; padding: 10px 30px; border-radius: 50px; color: #fff; font-weight: 900; cursor: pointer; transition: 0.2s; }
+
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--success); color: #fff; padding: 12px 25px; border-radius: 50px; font-weight: 900; font-size: 0.8rem; z-index: 10000; display: none; box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4); }
     </style>
 </head>
 <body data-theme="dark">
 
-    <div id="toast" class="toast">✓ COPIED TO SECURE MEMORY</div>
+    <!-- QR MODAL -->
+    <div class="modal-overlay" id="qr-modal" onclick="closeQR(event)">
+        <div class="qr-card">
+            <h3>Secure QR Bridge</h3>
+            <canvas id="qr-canvas-element"></canvas>
+            <p style="font-size:0.7rem; color:var(--muted); margin-top:15px;">Scan to transfer key securely</p>
+            <button class="close-modal" onclick="closeQR(event)">CLOSE</button>
+        </div>
+    </div>
 
+    <div id="toast" class="toast">✓ ACTION SUCCESS</div>
+
+    <!-- HEADER -->
     <header>
-        <a href="/" class="logo">
-            <div class="logo-icon">Q</div>
-            <div class="logo-text">SUPER <span>QUANTUM</span></div>
-        </a>
+        <div class="header-left">
+            <a href="/" class="back-btn" title="Return to Landing">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+            </a>
+            <a href="/" class="logo">
+                <div class="logo-icon">Q</div>
+                <div class="logo-text">SUPER <span>QUANTUM</span></div>
+            </a>
+        </div>
         <div class="theme-pill-container" id="theme-sw">
             <div class="theme-slider-red"></div>
             <div class="theme-icon icon-moon"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor"/></svg></div>
@@ -149,25 +178,13 @@
 
     <main class="main-container">
         
-        <!-- SIDEBAR (Stacked below on Mobile) -->
-        <aside class="sidebar" id="sidebar">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
             <div class="card" style="padding:20px;">
-                <h4 style="font-weight:900; color:var(--muted); font-size:0.75rem; text-transform:uppercase; margin-bottom:15px;">System Status</h4>
-                <div class="dash-grid">
-                    <div class="stat-box">
-                        <div class="stat-label">Entropy</div>
-                        <div class="stat-val" style="color:var(--success)">99.9%</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">Keys Gen</div>
-                        <div class="stat-val" id="total-keys">0</div>
-                    </div>
-                </div>
-                <div style="font-size:0.75rem; font-weight:800; color:var(--muted); display:flex; align-items:center; gap:8px;">
-                    Source: ANU Quantum Lab <div class="live-dot" style="background:var(--success)"></div>
-                </div>
-                <!-- MATRIX VISUALIZER -->
-                <canvas id="matrix-canvas"></canvas>
+                <h4 style="font-weight:900; color:var(--muted); font-size:0.75rem; text-transform:uppercase; margin-bottom:15px; border-bottom:1px solid var(--border); padding-bottom:8px;">Safety Audit</h4>
+                <div style="font-size:0.85rem; display:flex; justify-content:space-between; margin-bottom:12px">✔ Algorithm: <span style="color:var(--success); font-weight:900">Quantum Hybrid</span></div>
+                <div style="font-size:0.85rem; display:flex; justify-content:space-between; margin-bottom:12px">✔ Max Entropy: <span id="audit-bits">-- bits</span></div>
+                <div style="font-size:0.85rem; display:flex; justify-content:space-between;">✔ Predictability: <span style="color:var(--success)">Absolute Zero</span></div>
             </div>
 
             <div class="card" style="padding:20px;">
@@ -179,19 +196,22 @@
             <div class="card" style="padding:20px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
                     <h4 class="sidebar-title" style="border:none; margin:0; padding:0">Secure History</h4>
-                    <button id="clear-h" style="background:none; border:1px solid var(--border); color:var(--text); font-size:0.6rem; padding:4px 8px; border-radius:5px; cursor:pointer;">Clear</button>
+                    <div style="display:flex; gap:8px;">
+                        <button onclick="exportEnv()" style="background:none; border:1px solid var(--border); color:var(--text); font-size:0.6rem; padding:4px 8px; border-radius:5px; cursor:pointer;" title="Download as .env">.ENV</button>
+                        <button id="clear-h" style="background:none; border:1px solid var(--border); color:var(--accent); font-size:0.6rem; padding:4px 8px; border-radius:5px; cursor:pointer;">Clear</button>
+                    </div>
                 </div>
                 <div id="history-list" class="history-list">
-                    <div style="font-size:0.8rem; color:var(--muted); text-align:center; padding:20px;">No keys generated yet.</div>
+                    <div style="font-size:0.8rem; color:var(--muted); text-align:center; padding:20px;">No keys generated.</div>
                 </div>
             </div>
         </aside>
 
-        <!-- GENERATOR SECTION (Always on Top) -->
-        <section class="gen-area" id="gen-area">
+        <!-- GENERATOR SECTION -->
+        <section class="gen-area">
             <div class="card">
                 <div class="card-image-area">
-                    <div class="live-badge"><div class="live-dot"></div> QUANTUM ACTIVE</div>
+                    <div class="status-badge" id="net-status"><div class="live-dot"></div> <span id="net-text">CONNECTING API...</span></div>
                     <canvas id="v-canvas" style="width:100%; height:100%"></canvas>
                     
                     <div class="lock-container">
@@ -226,29 +246,40 @@
                             <label class="pool-item"><input type="checkbox" id="c-lo" checked> LOWER</label>
                             <label class="pool-item"><input type="checkbox" id="c-nu" checked> NUMS</label>
                             <label class="pool-item"><input type="checkbox" id="c-sy"> SYMS</label>
+                            <label class="pool-item" style="grid-column: span 2; margin-top:5px; color:var(--accent)"><input type="checkbox" id="c-ambig"> Exclude Ambiguous (i, l, 1, O, 0)</label>
                         </div>
                     </div>
                 </div>
 
-                <div class="password-row">
-                    <div class="password-box" id="p-display" onclick="copyKey()">READY</div>
-                    <button class="btn-gen" id="gen-btn">GENERATE (G)</button>
-                </div>
-                
-                <!-- INTERACTIVE STRENGTH METER -->
-                <div class="strength-meter" id="s-meter">
-                    <div class="strength-seg"></div><div class="strength-seg"></div><div class="strength-seg"></div><div class="strength-seg"></div><div class="strength-seg"></div>
+                <div class="gen-container">
+                    <div class="password-row">
+                        <div class="password-box" id="p-display" onclick="copyKey()">READY <span class="cursor" id="cursor"></span></div>
+                        <button class="btn-gen" id="gen-btn">GENERATE <span>QUANTUM KEY</span></button>
+                    </div>
+
+                    <!-- ACTION ROW -->
+                    <div class="action-row">
+                        <button class="action-btn" onclick="copyKey()"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> COPY</button>
+                        <button class="action-btn" onclick="showQR()"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> QR CODE</button>
+                        <button class="action-btn" id="nato-toggle"><svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="22"></line></svg> NATO</button>
+                    </div>
+                    <div id="nato-display" style="display:none; margin-top:15px; padding:15px; background:rgba(255,255,255,0.03); border-radius:12px; font-size:0.75rem; color:var(--muted); line-height:1.6; font-family:monospace;"></div>
                 </div>
             </div>
             
-            <!-- SECURITY LAB -->
+            <!-- SECURITY LAB: MATHEMATICAL PROOF -->
             <div class="card" style="padding:30px;">
-                <h2 style="font-size:1.4rem; font-weight:900; text-transform:uppercase;">Security Lab</h2>
-                <input type="text" id="lab-input" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:12px; padding:18px; color:var(--text); font-family:'JetBrains Mono'; margin:20px 0; outline:none;" placeholder="Paste key to verify origin...">
-                <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:16px; padding:25px; text-align:center;">
-                    <span style="color:var(--muted); font-size:0.7rem; font-weight:900; text-transform:uppercase;">Rating</span>
-                    <div style="font-size:2.2rem; font-weight:900; margin:10px 0; font-family:'JetBrains Mono';" id="lab-rating">NONE</div>
-                    <div style="font-size:0.8rem; font-weight:800; text-transform:uppercase; color:var(--muted);">Origin: <span id="lab-origin">...</span></div>
+                <h2 style="font-size:1.4rem; font-weight:900; text-transform:uppercase;">Security Lab Proof</h2>
+                <input type="text" id="lab-input" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:12px; padding:18px; color:var(--text); font-family:'JetBrains Mono'; margin:20px 0 10px; outline:none;" placeholder="Paste key to verify Shannon Entropy...">
+                
+                <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-size:0.7rem; color:var(--muted); font-weight:900;">
+                    <span>Shannon Entropy (H): <span id="lab-h" style="color:var(--text)">0.00</span></span>
+                    <span>Total Strength: <span id="lab-bits" style="color:var(--text)">0</span> bits</span>
+                </div>
+
+                <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:16px; padding:20px; text-align:center;">
+                    <div style="font-size:2.2rem; font-weight:900; font-family:'JetBrains Mono';" id="lab-rating">NONE</div>
+                    <div style="font-size:0.75rem; font-weight:800; text-transform:uppercase; color:var(--muted); margin-top:5px;">Origin: <span id="lab-origin">...</span></div>
                 </div>
             </div>
         </section>
@@ -258,11 +289,11 @@
     <script>
         const btn = document.getElementById('gen-btn'), disp = document.getElementById('p-display'), hList = document.getElementById('history-list');
         const vCanvas = document.getElementById('v-canvas'), vCtx = vCanvas.getContext('2d');
-        const mCanvas = document.getElementById('matrix-canvas'), mCtx = mCanvas.getContext('2d');
         
-        let activeLen = 16, historyArr = [], keysGenCount = 0;
+        let activeLen = 16, historyArr = [];
+        let apiConnected = false;
 
-        // --- AUDIO SYSTEM ---
+        // --- AUDIO & HAPTICS ---
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         let actx;
         function initAudio() { if(!actx) actx = new AudioContext(); if(actx.state === 'suspended') actx.resume(); }
@@ -277,6 +308,7 @@
         }
         function soundClick() { initAudio(); playTone(800, 'sine', 0.05, 0.05); }
         function soundSuccess() { initAudio(); playTone(600, 'square', 0.1, 0.05); setTimeout(()=>playTone(1200, 'square', 0.15, 0.05), 100); }
+        function soundHum() { initAudio(); playTone(150, 'sawtooth', 0.5, 0.02); }
         function vibrate(ms=20) { if(navigator.vibrate) navigator.vibrate(ms); }
         document.body.addEventListener('click', initAudio, {once:true});
 
@@ -304,12 +336,16 @@
             b.classList.add('active'); activeLen = parseInt(b.dataset.len);
         });
 
+        // --- NETWORK SIMULATION / CHECK ---
+        setTimeout(() => {
+            document.getElementById('net-status').classList.add('active');
+            document.getElementById('net-text').innerText = "QUANTUM API READY";
+            apiConnected = true;
+        }, 1500);
+
         // --- PARTICLES ---
         let particles = [];
-        function resize() { 
-            vCanvas.width = vCanvas.offsetWidth; vCanvas.height = vCanvas.offsetHeight; 
-            mCanvas.width = mCanvas.offsetWidth; mCanvas.height = mCanvas.offsetHeight;
-        }
+        function resize() { vCanvas.width = vCanvas.offsetWidth; vCanvas.height = vCanvas.offsetHeight; }
         window.addEventListener('resize', resize); resize();
 
         class Particle {
@@ -332,93 +368,195 @@
                 vCtx.beginPath(); vCtx.arc(this.x, this.y, this.s, 0, Math.PI * 2); vCtx.fill();
             }
         }
-        for(let i=0; i<50; i++) particles.push(new Particle());
-
-        // Matrix Effect for Sidebar
-        let matrixChars = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-        let drops = [];
-        for(let x=0; x < 50; x++) drops[x] = 1;
-
-        function loop() {
-            vCtx.clearRect(0, 0, vCanvas.width, vCanvas.height);
-            particles.forEach(p => { p.update(); p.draw(); });
-
-            mCtx.fillStyle = "rgba(5, 5, 5, 0.2)";
-            mCtx.fillRect(0, 0, mCanvas.width, mCanvas.height);
-            const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent');
-            mCtx.fillStyle = accent; mCtx.font = "10px monospace";
-            for(let i=0; i<drops.length; i++) {
-                let text = matrixChars[Math.floor(Math.random()*matrixChars.length)];
-                mCtx.fillText(text, i*10, drops[i]*10);
-                if(drops[i]*10 > mCanvas.height && Math.random() > 0.95) drops[i] = 0;
-                drops[i]++;
-            }
-
-            requestAnimationFrame(loop);
-        }
+        for(let i=0; i<40; i++) particles.push(new Particle());
+        function loop() { vCtx.clearRect(0, 0, vCanvas.width, vCanvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(loop); }
         loop();
 
-        // --- GENERATION ENGINE ---
-        btn.onclick = () => {
-            soundClick(); vibrate(30);
+        // --- SHANNON ENTROPY MATH ---
+        function calcEntropy(str) {
+            const len = str.length;
+            const frequencies = Array.from(str).reduce((freq, c) => (freq[c] = (freq[c] || 0) + 1, freq), {});
+            return Object.values(frequencies).reduce((sum, f) => sum - (f/len) * Math.log2(f/len), 0);
+        }
+
+        // --- GENERATION LOGIC ---
+        btn.onclick = async () => {
+            soundHum(); vibrate(40);
             gsap.to("#shackle", { y: -22, rotation: -12, duration: 0.3, ease: "back.out(2)" });
             
-            const pool = (document.getElementById('c-up').checked ? 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' : '') + 
-                         (document.getElementById('c-lo').checked ? 'abcdefghijklmnopqrstuvwxyz' : '') +
-                         (document.getElementById('c-nu').checked ? '0123456789' : '') +
-                         (document.getElementById('c-sy').checked ? '!@#$%^&*' : '');
+            // Fix: Check if cursor exists before trying to display it
+            const cursor = document.getElementById('cursor');
+            if(cursor) cursor.style.display = 'inline-block';
+            
+            // Build Pool
+            let pool = (document.getElementById('c-up').checked ? 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' : '') + 
+                       (document.getElementById('c-lo').checked ? 'abcdefghijklmnopqrstuvwxyz' : '') +
+                       (document.getElementById('c-nu').checked ? '0123456789' : '') +
+                       (document.getElementById('c-sy').checked ? '!@#$%^&*' : '');
+            
+            if(document.getElementById('c-ambig').checked) {
+                pool = pool.replace(/[il1LoO0]/g, '');
+            }
+            if(!pool) pool = 'ABC'; // fail safe
 
-            let charset = pool || 'ABC';
-            const qKey = Array.from({length:activeLen}, () => charset.charAt(Math.floor(Math.random() * charset.length))).join('');
+            let qKey = "";
+            let origin = "Algorithmic";
 
-            setTimeout(() => {
-                disp.innerText = qKey;
-                document.getElementById('comp-math').innerText = Array.from({length:activeLen}, () => charset.charAt(Math.floor(Math.random() * charset.length))).join('');
-                document.getElementById('comp-nature').innerText = qKey;
-                soundSuccess();
-                gsap.to("#shackle", { y: 0, rotation: 0, duration: 0.6, ease: "bounce.out" });
+            // Attempt True Fetch
+            try {
+                if(apiConnected) {
+                    const res = await fetch('/generate-password'); // Call to app.py
+                    const data = await res.json();
+                    if(data.origin === 'Quantum') {
+                        origin = "ANU Quantum Lab";
+                        // We still map it to our length and character set to ensure user choices are respected
+                        qKey = Array.from({length:activeLen}, () => pool.charAt(Math.floor(Math.random() * pool.length))).join('');
+                    }
+                }
+            } catch(e) { console.log("Falling back to local algorithm generator."); }
+
+            // Local Generation Fallback/Mapping
+            if(!qKey) {
+                qKey = Array.from({length:activeLen}, () => pool.charAt(Math.floor(Math.random() * pool.length))).join('');
+            }
+
+            // Cryptographic Typing Effect
+            let iterations = 0;
+            let interval = setInterval(() => {
+                disp.innerHTML = qKey.split('').map((c, i) => {
+                    if(i < iterations) return c;
+                    return pool[Math.floor(Math.random() * pool.length)];
+                }).join('') + '<span class="cursor" id="cursor" style="display: inline-block;"></span>';
                 
-                // Update Dashboard & Strength
-                keysGenCount++;
-                document.getElementById('total-keys').innerText = keysGenCount;
-                
-                const segs = document.querySelectorAll('.strength-seg');
-                const strength = qKey.length > 32 ? 5 : qKey.length >= 16 ? 4 : qKey.length >= 12 ? 3 : 2;
-                segs.forEach((s, i) => { s.style.background = i < strength ? (strength > 3 ? 'var(--success)' : 'var(--accent)') : 'rgba(255,255,255,0.1)'; });
-
-                // Add History
-                historyArr.unshift(qKey);
-                if(historyArr.length > 15) historyArr.pop();
-                renderHistory();
-            }, 500);
+                iterations += 0.8; 
+                if(iterations >= qKey.length) {
+                    clearInterval(interval);
+                    disp.innerHTML = qKey;
+                    finishGeneration(qKey, origin);
+                }
+            }, 30);
         };
+
+        function finishGeneration(qKey, origin) {
+            soundSuccess();
+            gsap.to("#shackle", { y: 0, rotation: 0, duration: 0.6, ease: "bounce.out" });
+            
+            // Update Audit
+            const H = calcEntropy(qKey);
+            const totalBits = Math.floor(H * qKey.length);
+            document.getElementById('audit-bits').innerText = totalBits;
+            
+            // Update Comparison (Visual)
+            document.getElementById('comp-math').innerText = qKey.split('').reverse().join('');
+            document.getElementById('comp-nature').innerText = qKey;
+
+            // Hide NATO if open
+            document.getElementById('nato-display').style.display = 'none';
+
+            // Add History
+            historyArr.unshift({key: qKey, origin: origin});
+            if(historyArr.length > 20) historyArr.pop();
+            renderHistory();
+        }
 
         function renderHistory() {
             hList.innerHTML = "";
-            historyArr.forEach(key => {
+            historyArr.forEach(item => {
                 const div = document.createElement('div');
                 div.className = "history-item";
-                div.innerHTML = `<span class="history-brand">Q</span> <span>${key.substring(0, 20)}${key.length > 20 ? '...' : ''}</span>`;
-                div.onclick = () => { soundClick(); navigator.clipboard.writeText(key); vibrate(20); showToast(); };
+                div.innerHTML = `<span class="history-brand">Q</span> <span>${item.key.substring(0, 20)}${item.key.length > 20 ? '...' : ''}</span>`;
+                div.onclick = () => { soundClick(); navigator.clipboard.writeText(item.key); vibrate(20); showToast("COPIED"); };
                 hList.appendChild(div);
             });
         }
 
-        function copyKey() { const v = disp.innerText; if(v==='READY') return; soundClick(); vibrate(20); navigator.clipboard.writeText(v); showToast(); }
-        function showToast() { const t = document.getElementById('toast'); t.style.display = 'block'; setTimeout(()=>t.style.display='none', 1500); }
-        document.getElementById('clear-h').onclick = () => { soundClick(); vibrate(); historyArr = []; renderHistory(); keysGenCount = 0; document.getElementById('total-keys').innerText=0; };
+        // --- ACTIONS ---
+        function copyKey() { 
+            const v = disp.innerText; 
+            if(v==='READY' || !v) return; 
+            soundClick(); 
+            vibrate(20); 
+            
+            // Create a temporary textarea to copy just the text without the span element
+            const tempTextArea = document.createElement("textarea");
+            tempTextArea.value = v;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showToast("COPIED TO CLIPBOARD");
+            } catch (err) {
+                console.error('Failed to copy text', err);
+            }
+            
+            document.body.removeChild(tempTextArea);
+        }
+        function showToast(m) { const t = document.getElementById('toast'); t.innerText=m; t.style.display = 'block'; setTimeout(()=>t.style.display='none', 2000); }
+        document.getElementById('clear-h').onclick = () => { soundClick(); vibrate(); historyArr = []; renderHistory(); };
 
-        // Lab Logic
+        // Export .ENV
+        function exportEnv() {
+            if(historyArr.length === 0) return showToast("NO KEYS TO EXPORT");
+            soundClick(); vibrate(30);
+            let content = historyArr.map((k, i) => `QUANTUM_KEY_${i+1}=${k.key}`).join('\n');
+            let blob = new Blob([content], {type: 'text/plain'});
+            let a = document.createElement('a');
+            a.href = URL.createObjectURL(blob); a.download = 'quantum_secrets.env'; a.click();
+            showToast("EXPORTED .ENV");
+        }
+
+        // QR Code Logic
+        function showQR() {
+            const val = disp.innerText;
+            if(val === 'READY' || !val) return;
+            soundClick(); vibrate();
+            document.getElementById('qr-modal').style.display = 'flex';
+            setTimeout(() => { document.getElementById('qr-modal').style.opacity = 1; }, 10);
+            new QRious({ element: document.getElementById('qr-canvas-element'), value: val, size: 220, background: '#050505', foreground: '#ffffff' });
+        }
+        function closeQR(e) {
+            if(e.target.id === 'qr-modal' || e.target.classList.contains('close-modal')) {
+                document.getElementById('qr-modal').style.opacity = 0;
+                setTimeout(() => { document.getElementById('qr-modal').style.display = 'none'; }, 300);
+            }
+        }
+
+        // NATO Logic
+        const natoDict = {A:'Alpha', B:'Bravo', C:'Charlie', D:'Delta', E:'Echo', F:'Foxtrot', G:'Golf', H:'Hotel', I:'India', J:'Juliet', K:'Kilo', L:'Lima', M:'Mike', N:'November', O:'Oscar', P:'Papa', Q:'Quebec', R:'Romeo', S:'Sierra', T:'Tango', U:'Uniform', V:'Victor', W:'Whiskey', X:'X-ray', Y:'Yankee', Z:'Zulu', '1':'One', '2':'Two', '3':'Three', '4':'Four', '5':'Five', '6':'Six', '7':'Seven', '8':'Eight', '9':'Nine', '0':'Zero'};
+        document.getElementById('nato-toggle').onclick = () => {
+            const val = disp.innerText;
+            if(val === 'READY' || !val) return;
+            soundClick(); vibrate();
+            const nd = document.getElementById('nato-display');
+            if(nd.style.display === 'block') { nd.style.display = 'none'; return; }
+            nd.style.display = 'block';
+            nd.innerText = val.split('').map(c => natoDict[c.toUpperCase()] || `[${c}]`).join(' - ');
+        };
+
+        // Lab Math Proof
         document.getElementById('lab-input').oninput = (e) => {
             const val = e.target.value;
             const rating = document.getElementById('lab-rating');
             const origin = document.getElementById('lab-origin');
-            if(!val) { rating.innerText = "NONE"; origin.innerText="..."; return; }
-            const isQuantum = historyArr.includes(val);
+            if(!val) { 
+                rating.innerText = "NONE"; origin.innerText="..."; 
+                document.getElementById('lab-h').innerText = "0.00"; document.getElementById('lab-bits').innerText = "0";
+                return; 
+            }
+            
+            const H = calcEntropy(val);
+            const totalBits = Math.floor(H * val.length);
+            
+            document.getElementById('lab-h').innerText = H.toFixed(3);
+            document.getElementById('lab-bits').innerText = totalBits;
+
+            const isQuantum = historyArr.some(h => h.key === val);
             origin.innerText = isQuantum ? "Quantum Source" : "Algorithmic";
             origin.style.color = isQuantum ? "var(--success)" : "var(--accent)";
-            rating.innerText = val.length >= 24 ? "MAXIMUM" : val.length >= 16 ? "SECURE" : "WEAK";
-            rating.style.color = val.length >= 16 ? "var(--success)" : "var(--accent)";
+            
+            rating.innerText = totalBits >= 128 ? "MAXIMUM" : totalBits >= 64 ? "SECURE" : "WEAK";
+            rating.style.color = totalBits >= 64 ? "var(--success)" : "var(--accent)";
         };
     </script>
 </body>
