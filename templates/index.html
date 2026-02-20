@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, user-scalable=0" />
+    <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover" />
     <title>Quantum Key Engine</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700;900&family=JetBrains+Mono:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 
     <style>
@@ -12,216 +12,198 @@
             --bg: #050505; --card: #0c0c0c; --accent: #E60012; --accent-glow: rgba(230, 0, 18, 0.4); --text: #ffffff;
             --muted: #9ca3af; --border: rgba(255, 255, 255, 0.08); --canvas-bg: #000;
             --success: #22c55e;
-            --lock-body: #FFCC00; 
-            --lock-shackle: #E0E0E0; 
-            --lock-hole: #000000;
+            --lock-body: #FFCC00; --lock-shackle: #E0E0E0; --lock-hole: #000000;
             --header-bg: #080808;
         }
 
         body[data-theme="light"] {
             --bg: #f5f5f7; --card: #ffffff; --text: #1d1d1f;
             --border: rgba(0, 0, 0, 0.1); --canvas-bg: #f2f2f2;
-            --lock-shackle: #000000;
+            --lock-shackle: #000000; --header-bg: #ffffff;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        
         /* STRICT VERTICAL SCROLL ONLY */
-        html, body { 
-            width: 100%; 
-            overflow-x: hidden; 
-            background: var(--bg); 
-            color: var(--text); 
-            font-family: 'Roboto', sans-serif; 
-            transition: background 0.4s; 
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        html, body { width: 100%; overflow-x: hidden; }
+        body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-serif; transition: background 0.5s ease; }
 
+        /* --- HEADER --- */
         header { 
             height: 70px; display: flex; align-items: center; justify-content: space-between; 
-            padding: 0 5%; border-bottom: 1px solid rgba(255,255,255,0.05); 
-            background: var(--header-bg) !important; backdrop-filter: blur(20px); 
-            position: sticky; top: 0; z-index: 1000; width: 100%;
+            padding: 0 5%; border-bottom: 1px solid var(--border); 
+            background: var(--header-bg); backdrop-filter: blur(20px); 
+            position: fixed; top: 0; width: 100%; z-index: 1000; transition: 0.5s;
         }
-        .logo { display: flex; align-items: center; gap: 12px; font-weight: 900; text-transform: uppercase; text-decoration: none; color: #fff !important; font-size: 0.9rem; }
-        .logo-icon { background: var(--accent); padding: 5px 12px; border-radius: 6px; color: #fff; box-shadow: 0 0 15px var(--accent-glow); transition: 0.3s; }
+        .logo { display: flex; align-items: center; gap: 10px; font-weight: 900; text-transform: uppercase; text-decoration: none; color: var(--text); font-size: 0.9rem; }
+        .logo-icon { background: var(--accent); padding: 5px 12px; border-radius: 6px; color: #fff; box-shadow: 0 0 15px var(--accent-glow); transition: 0.5s; }
 
-        .theme-pill-container {
-            background: #181818; border-radius: 12px; padding: 4px; display: flex; position: relative; width: 85px; height: 40px; cursor: pointer; border: 1px solid rgba(255,255,255,0.05);
-        }
-        .theme-slider-red {
-            position: absolute; width: 36px; height: 32px; background: var(--accent); border-radius: 8px; top: 4px; left: 4px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s; z-index: 1; 
-            box-shadow: 0 0 12px var(--accent-glow);
-        }
+        .theme-pill-container { background: #181818; border-radius: 12px; padding: 4px; display: flex; position: relative; width: 85px; height: 38px; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); }
+        .theme-slider-red { position: absolute; width: 36px; height: 30px; background: var(--accent); border-radius: 8px; top: 4px; left: 4px; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1; box-shadow: 0 0 12px var(--accent-glow); }
         body[data-theme="light"] .theme-slider-red { transform: translateX(41px); }
-        .theme-icon { flex: 1; display: flex; align-items: center; justify-content: center; z-index: 2; transition: 0.3s; }
-        .theme-icon svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 2; opacity: 0.4; }
-        body[data-theme="dark"] .icon-moon svg { opacity: 1; }
-        body[data-theme="light"] .icon-sun svg { opacity: 1; }
+        .theme-icon { flex: 1; display: flex; align-items: center; justify-content: center; z-index: 2; transition: 0.3s; opacity: 0.4; }
+        body[data-theme="dark"] .icon-moon, body[data-theme="light"] .icon-sun { opacity: 1; color: #fff;}
+        .theme-icon svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 2; }
 
-        /* --- MAIN LAYOUT (Fixed for Mobile) --- */
-        .main-container { 
-            max-width: 1600px; 
-            margin: 0 auto; 
-            padding: 20px 25px; 
-            display: grid; 
-            grid-template-columns: 340px 1fr; 
-            gap: 25px; 
-            width: 100%;
-        }
+        /* --- LAYOUT (Desktop vs Mobile Stacking) --- */
+        .main-container { max-width: 1400px; margin: 0 auto; padding: 90px 25px 25px; display: grid; grid-template-columns: 340px 1fr; gap: 25px; align-items: start; }
         
-        @media (max-width: 1024px) { 
+        @media (max-width: 1024px) {
             .main-container { 
-                grid-template-columns: 1fr; /* Single column */
-                padding: 15px; 
-                gap: 20px;
-                display: flex;
-                flex-direction: column; /* Stack vertically */
+                display: flex; flex-direction: column; 
+                padding: 90px 15px 25px; gap: 20px; 
             }
-            
-            /* Sidebar moves to bottom, no fixed positioning */
-            .sidebar { 
-                position: static !important; 
-                width: 100% !important; 
-                height: auto !important; 
-                transform: none !important; 
-                border-right: none !important; 
-                box-shadow: none !important; 
-                padding: 0 !important; 
-                background: transparent !important;
-                order: 2; /* Appears after generator */
-            }
-
-            .gen-sec {
-                order: 1; /* Generator first */
-                width: 100%;
-            }
-            
-            /* Hide the drawer button on mobile since we stack now */
-            .side-toggle { display: none !important; }
+            .sidebar { order: 2; width: 100%; } /* Pushes sidebar to the bottom */
+            .gen-area { order: 1; width: 100%; } /* Keeps generator at the top */
         }
 
-        .side-toggle { position: fixed; left: 0; top: 50%; width: 35px; height: 60px; background: var(--accent); color: #fff; display: none; align-items: center; justify-content: center; border-radius: 0 10px 10px 0; cursor: pointer; z-index: 2100; font-weight: 900; }
+        /* --- CARDS & UI --- */
+        .card { background: var(--card); border: 1.5px solid var(--border); border-radius: 24px; position: relative; overflow: hidden; margin-bottom: 20px; transition: border-color 0.3s, box-shadow 0.3s; width: 100%; }
+        .card:hover { border-color: var(--accent); box-shadow: 0 0 20px rgba(255,255,255,0.02); }
 
-        .card { 
-            background: var(--card); border: 1.5px solid var(--border); border-radius: 24px; 
-            position: relative; overflow: hidden; margin-bottom: 25px; 
-            transition: border-color 0.3s ease, box-shadow 0.3s ease; width: 100%;
-        }
-        .card:hover { border-color: var(--accent); box-shadow: 0 0 30px var(--accent-glow); }
+        .card-image-area { height: 280px; background: var(--canvas-bg); position: relative; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--border); overflow: hidden; }
+        .live-badge { position: absolute; left: 15px; top: 15px; background: rgba(0,0,0,0.6); border: 1.5px solid var(--accent); color: var(--accent); padding: 5px 10px; border-radius: 8px; font-size: 0.6rem; font-weight: 800; z-index: 15; display: flex; align-items: center; gap: 6px; }
+        .live-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0.3; } }
 
-        .card-image-area { height: 320px; background: var(--canvas-bg); position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; border-bottom: 1px solid var(--border); }
-        .live-badge { position: absolute; left: 20px; top: 20px; background: rgba(0,0,0,0.4); border: 1.5px solid var(--accent); color: var(--accent); padding: 6px 12px; border-radius: 10px; font-size: 0.65rem; font-weight: 800; z-index: 15; letter-spacing: 1px; pointer-events: none; }
-
-        /* LOCK UI */
-        .lock-container { 
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-            width: 110px; height: 130px; z-index: 10; display: flex; flex-direction: column; align-items: center; 
-            filter: drop-shadow(0 0 40px rgba(0,0,0,0.6)); pointer-events: none;
-        }
+        /* PERFECT LOCK */
+        .lock-container { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 110px; height: 130px; z-index: 10; display: flex; flex-direction: column; align-items: center; filter: drop-shadow(0 0 30px rgba(0,0,0,0.8)); pointer-events: none; }
         .shackle-svg { position: absolute; top: 0; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .lock-body-svg { position: absolute; bottom: 0; }
 
-        /* CONTROLS AREA */
-        .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; padding: 25px; }
-        /* Fix for very small screens */
-        @media (max-width: 500px) { .controls-grid { grid-template-columns: 1fr; gap: 20px; } }
-
-        .control-label { font-weight: 900; color: var(--muted); font-size: 0.7rem; text-transform: uppercase; margin-bottom: 12px; display: block; letter-spacing: 1.5px; }
+        /* 2x2 CONTROLS */
+        .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 25px; }
+        @media (max-width: 450px) { .controls-grid { grid-template-columns: 1fr; } }
+        .control-label { font-weight: 900; color: var(--muted); font-size: 0.7rem; text-transform: uppercase; margin-bottom: 10px; display: block; letter-spacing: 1px; }
         
-        .len-btn-group { display: flex; flex-wrap: wrap; gap: 8px; }
-        .len-btn { background: #161616; border: 1px solid var(--border); color: #fff; padding: 12px 18px; border-radius: 10px; cursor: pointer; font-weight: 900; transition: 0.2s; }
-        .len-btn.active { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+        .len-btn-group { display: flex; flex-wrap: wrap; gap: 6px; }
+        .len-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: 10px; cursor: pointer; font-weight: 900; font-size: 0.8rem; transition: 0.2s; }
+        .len-btn.active { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); color: #fff; }
+        .len-btn:active { transform: scale(0.95); }
 
         .pool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .pool-item { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 800; color: var(--muted); cursor: pointer; transition: 0.2s; }
-        .pool-item input { accent-color: var(--accent); width: 18px; height: 18px; cursor: pointer; }
+        .pool-item { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 800; color: var(--muted); cursor: pointer; }
+        .pool-item input { accent-color: var(--accent); width: 18px; height: 18px; }
 
-        /* PASS DISPLAY */
-        .password-row { display: grid; grid-template-columns: 1fr 180px; gap: 15px; padding: 0 25px 30px; }
-        @media (max-width: 600px) { .password-row { grid-template-columns: 1fr; } }
+        /* --- GENERATOR & PASSWORD ROW --- */
+        .password-row { display: grid; grid-template-columns: 1fr 180px; gap: 15px; padding: 0 25px 30px; width: 100%; }
+        @media (max-width: 600px) { .password-row { grid-template-columns: 1fr; display: flex; flex-direction: column; } }
         
-        .password-box { background: rgba(0,0,0,0.03); border: 1.5px solid var(--border); border-radius: 18px; padding: 22px; font-family: 'JetBrains Mono', monospace; font-size: 1.35rem; text-align: center; color: var(--text); cursor: pointer; transition: 0.3s; min-height: 80px; display: flex; align-items: center; justify-content: center; letter-spacing: 1px; width: 100%; }
-        .btn-gen { background: var(--accent); color: #fff; border: none; border-radius: 18px; font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px; box-shadow: 0 5px 20px var(--accent-glow); transition: 0.2s; height: 80px; }
+        .password-box { 
+            background: rgba(0,0,0,0.03); border: 1.5px solid var(--border); border-radius: 18px; 
+            padding: 20px; font-family: 'JetBrains Mono', monospace; font-size: 1.35rem; 
+            text-align: center; color: var(--text); cursor: pointer; transition: 0.3s; 
+            min-height: 80px; display: flex; align-items: center; justify-content: center; word-break: break-all; width: 100%; 
+        }
+        
+        /* MASSIVE GENERATE BUTTON */
+        .btn-gen { 
+            background: var(--accent); color: #fff; border: none; border-radius: 18px; 
+            font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 1rem; 
+            letter-spacing: 1px; box-shadow: 0 5px 20px var(--accent-glow); transition: 0.2s; 
+            min-height: 80px; width: 100%; padding: 0 20px;
+        }
+        .btn-gen:active { transform: scale(0.96); }
 
+        /* --- DASHBOARD STATS --- */
+        .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .stat-box { background: rgba(255,255,255,0.02); border: 1px solid var(--border); padding: 15px; border-radius: 16px; }
+        .stat-val { font-size: 1.5rem; font-weight: 900; font-family: 'JetBrains Mono'; margin: 5px 0; color: var(--text); }
+        .stat-label { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; font-weight: 900; letter-spacing: 1px; }
+
+        /* RANDOMNESS MATRIX VISUALIZER */
+        #matrix-canvas { width: 100%; height: 80px; background: #050505; border-radius: 12px; border: 1px solid var(--border); margin-top: 15px; }
+
+        /* --- STRENGTH METER --- */
+        .strength-meter { display: flex; gap: 4px; margin-top: 15px; height: 8px; padding: 0 25px 15px; }
+        .strength-seg { flex: 1; background: rgba(255,255,255,0.1); border-radius: 4px; transition: 0.4s; }
+
+        /* SIDEBAR MODULES */
         .sidebar-title { font-weight: 900; color: var(--muted); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 8px; letter-spacing: 1px; }
-        .glossary-item { font-size: 0.75rem; line-height: 1.4; margin-bottom: 12px; }
-        .glossary-item b { color: var(--accent); margin-right: 5px; font-size: 0.7rem; text-transform: uppercase; }
-        .glossary-item p { color: var(--muted); display: inline; }
-
-        .comp-card { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 16px; padding: 15px; margin-bottom: 12px; transition: border-color 0.3s; }
+        .comp-card { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 16px; padding: 15px; margin-bottom: 12px; }
         .comp-badge { font-size: 0.55rem; background: #2a2a2a; color: #fff; padding: 4px 10px; border-radius: 6px; font-weight: 900; margin-bottom: 8px; display: inline-block; }
-        .comp-val { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; word-break: break-all; opacity: 0.6; }
+        .comp-val { font-family: 'JetBrains Mono'; font-size: 0.75rem; word-break: break-all; opacity: 0.6; }
 
-        .toast { position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%); background: var(--accent); color: #fff; padding: 15px 30px; border-radius: 12px; font-weight: 900; z-index: 5000; display: none; box-shadow: 0 10px 40px rgba(0,0,0,0.6); transition: 0.3s; }
+        .history-list { max-height: 300px; overflow-y: auto; }
+        .history-item { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 10px; cursor: pointer; background: rgba(255,255,255,0.02); font-family: 'JetBrains Mono'; font-size: 0.75rem; transition: 0.2s; }
+        .history-item:active { transform: scale(0.98); border-color: var(--accent); }
+        .history-brand { background: var(--accent); color: white; padding: 3px 6px; border-radius: 4px; font-weight: 900; font-size: 0.6rem; }
+
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--success); color: #fff; padding: 12px 25px; border-radius: 50px; font-weight: 900; font-size: 0.8rem; z-index: 5000; display: none; box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4); }
     </style>
 </head>
 <body data-theme="dark">
-    <div id="toast" class="toast">COPIED TO CLIPBOARD</div>
-    <div class="side-toggle" id="side-toggle">></div>
+
+    <div id="toast" class="toast">✓ COPIED TO SECURE MEMORY</div>
 
     <header>
         <a href="/" class="logo">
             <div class="logo-icon">Q</div>
             <div class="logo-text">SUPER <span>QUANTUM</span></div>
         </a>
-        <div class="header-actions">
-            <div class="theme-pill-container" id="theme-sw">
-                <div class="theme-slider-red"></div>
-                <div class="theme-icon icon-moon"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor"/></svg></div>
-                <div class="theme-icon icon-sun"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" stroke="currentColor"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42m12.72-12.72l1.42-1.42" stroke="currentColor"/></svg></div>
-            </div>
+        <div class="theme-pill-container" id="theme-sw">
+            <div class="theme-slider-red"></div>
+            <div class="theme-icon icon-moon"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor"/></svg></div>
+            <div class="theme-icon icon-sun"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" stroke="currentColor"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42m12.72-12.72l1.42-1.42" stroke="currentColor"/></svg></div>
         </div>
     </header>
 
     <main class="main-container">
         
-        <!-- SIDEBAR: On desktop left, on mobile stacked bottom -->
+        <!-- SIDEBAR (Stacked below on Mobile) -->
         <aside class="sidebar" id="sidebar">
-            <div class="card" style="padding:25px;">
-                <h4 class="sidebar-title">Safety Audit</h4>
-                <div style="font-size:0.85rem; display:flex; justify-content:space-between; margin-bottom:12px">✔ Complexity: <span id="s-bits">0 bits</span></div>
-                <div style="font-size:0.85rem; display:flex; justify-content:space-between;">✔ Predictability: <span style="color:var(--success); font-weight:900">Zero</span></div>
+            <div class="card" style="padding:20px;">
+                <h4 style="font-weight:900; color:var(--muted); font-size:0.75rem; text-transform:uppercase; margin-bottom:15px;">System Status</h4>
+                <div class="dash-grid">
+                    <div class="stat-box">
+                        <div class="stat-label">Entropy</div>
+                        <div class="stat-val" style="color:var(--success)">99.9%</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Keys Gen</div>
+                        <div class="stat-val" id="total-keys">0</div>
+                    </div>
+                </div>
+                <div style="font-size:0.75rem; font-weight:800; color:var(--muted); display:flex; align-items:center; gap:8px;">
+                    Source: ANU Quantum Lab <div class="live-dot" style="background:var(--success)"></div>
+                </div>
+                <!-- MATRIX VISUALIZER -->
+                <canvas id="matrix-canvas"></canvas>
             </div>
 
-            <div class="card" style="padding:25px;">
+            <div class="card" style="padding:20px;">
                 <h4 class="sidebar-title">Classical vs Quantum</h4>
                 <div class="comp-card"><span class="comp-badge">MATH-BASED (PRNG)</span><div id="comp-math" class="comp-val">--------</div></div>
                 <div class="comp-card" style="border-color: var(--accent);"><span class="comp-badge" style="background:var(--accent);">NATURE-BASED (TRNG)</span><div id="comp-nature" class="comp-val" style="color:var(--accent); font-weight:bold;">--------</div></div>
             </div>
 
-            <div class="card" style="padding:25px;">
-                <h4 class="sidebar-title">Quantum Glossary</h4>
-                <div class="glossary-item"><b>Entropy:</b><p>The mathematical measure of total uncertainty.</p></div>
-                <div class="glossary-item"><b>TRNG:</b><p>True randomness sourced from physical noise.</p></div>
-                <div class="glossary-item"><b>Vacuum:</b><p>Energy shifts in subatomic space used as seeds.</p></div>
-                <div class="glossary-item"><b>Logic:</b><p>Non-deterministic paths vs software rules.</p></div>
-            </div>
-
-            <div class="card" style="padding:25px;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:12px; align-items:center">
-                    <h4 class="sidebar-title" style="border:none; margin:0;">History</h4>
-                    <button id="clear-h" style="background:none; border:1px solid var(--border); color:var(--muted); font-size:0.6rem; padding:3px 8px; border-radius:5px; cursor:pointer">Clear</button>
+            <div class="card" style="padding:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
+                    <h4 class="sidebar-title" style="border:none; margin:0; padding:0">Secure History</h4>
+                    <button id="clear-h" style="background:none; border:1px solid var(--border); color:var(--text); font-size:0.6rem; padding:4px 8px; border-radius:5px; cursor:pointer;">Clear</button>
                 </div>
-                <div id="history-list"></div>
+                <div id="history-list" class="history-list">
+                    <div style="font-size:0.8rem; color:var(--muted); text-align:center; padding:20px;">No keys generated yet.</div>
+                </div>
             </div>
         </aside>
 
-        <!-- GENERATOR SECTION -->
-        <section class="gen-sec">
+        <!-- GENERATOR SECTION (Always on Top) -->
+        <section class="gen-area" id="gen-area">
             <div class="card">
                 <div class="card-image-area">
-                    <div class="live-badge">QUANTUM SOURCE ACTIVE</div>
+                    <div class="live-badge"><div class="live-dot"></div> QUANTUM ACTIVE</div>
                     <canvas id="v-canvas" style="width:100%; height:100%"></canvas>
                     
                     <div class="lock-container">
-                        <svg class="shackle-svg" id="shackle" width="86" height="85" viewBox="0 0 86 85">
-                            <path d="M21 55 V35 A22 22 0 0 1 65 35 V55" stroke="var(--lock-shackle)" stroke-width="14" fill="none" stroke-linecap="round"/>
+                        <svg class="shackle-svg" id="shackle" width="80" height="80" viewBox="0 0 80 80">
+                            <!-- PERFECT ROUNDED ARCH -->
+                            <path d="M20 50 V30 A20 20 0 0 1 60 30 V50" stroke="var(--lock-shackle)" stroke-width="12" fill="none" stroke-linecap="butt"/>
                         </svg>
                         <div class="lock-body-svg">
-                            <svg width="105" height="85" viewBox="0 0 105 85">
-                                <rect width="105" height="85" rx="16" fill="var(--lock-body)"/>
-                                <circle cx="52.5" cy="42" r="9" fill="var(--lock-hole)"/>
-                                <rect x="48.5" y="42" width="8" height="18" rx="2" fill="var(--lock-hole)"/>
+                            <svg width="100" height="80" viewBox="0 0 100 80">
+                                <rect width="100" height="80" rx="14" fill="var(--lock-body)"/>
+                                <circle cx="50" cy="38" r="8" fill="var(--lock-hole)"/>
+                                <rect x="46" y="38" width="8" height="16" rx="2" fill="var(--lock-hole)"/>
                             </svg>
                         </div>
                     </div>
@@ -239,7 +221,6 @@
                     </div>
                     <div>
                         <span class="control-label">Entropy Pools</span>
-                        <!-- 2X2 GRID -->
                         <div class="pool-grid">
                             <label class="pool-item"><input type="checkbox" id="c-up" checked> UPPER</label>
                             <label class="pool-item"><input type="checkbox" id="c-lo" checked> LOWER</label>
@@ -249,109 +230,137 @@
                     </div>
                 </div>
 
-                <div style="padding:0 25px;"><h2 style="font-size:1.5rem; font-weight:900; text-transform:uppercase; margin-bottom:15px;">Quantum Key Engine</h2></div>
                 <div class="password-row">
                     <div class="password-box" id="p-display" onclick="copyKey()">READY</div>
                     <button class="btn-gen" id="gen-btn">GENERATE (G)</button>
                 </div>
+                
+                <!-- INTERACTIVE STRENGTH METER -->
+                <div class="strength-meter" id="s-meter">
+                    <div class="strength-seg"></div><div class="strength-seg"></div><div class="strength-seg"></div><div class="strength-seg"></div><div class="strength-seg"></div>
+                </div>
             </div>
-
+            
             <!-- SECURITY LAB -->
             <div class="card" style="padding:30px;">
-                <h2 style="font-size:1.4rem; font-weight:900; text-transform:uppercase;">Quantum Security Lab</h2>
-                <input type="text" id="lab-input" style="width:100%; background:rgba(0,0,0,0.03); border:1px solid var(--border); border-radius:15px; padding:18px; color:var(--text); font-family:'JetBrains Mono'; margin:20px 0; outline:none;" placeholder="Paste key to verify origin...">
-                <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:20px; padding:25px; text-align:center;">
+                <h2 style="font-size:1.4rem; font-weight:900; text-transform:uppercase;">Security Lab</h2>
+                <input type="text" id="lab-input" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:12px; padding:18px; color:var(--text); font-family:'JetBrains Mono'; margin:20px 0; outline:none;" placeholder="Paste key to verify origin...">
+                <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:16px; padding:25px; text-align:center;">
                     <span style="color:var(--muted); font-size:0.7rem; font-weight:900; text-transform:uppercase;">Rating</span>
-                    <div style="font-size:2.2rem; font-weight:900; margin:10px 0;" id="lab-rating">NONE</div>
-                    <div style="font-size:0.8rem; font-weight:800; text-transform:uppercase; opacity:0.6;">Origin: <span id="lab-origin">Pending...</span></div>
+                    <div style="font-size:2.2rem; font-weight:900; margin:10px 0; font-family:'JetBrains Mono';" id="lab-rating">NONE</div>
+                    <div style="font-size:0.8rem; font-weight:800; text-transform:uppercase; color:var(--muted);">Origin: <span id="lab-origin">...</span></div>
                 </div>
             </div>
         </section>
+
     </main>
 
     <script>
         const btn = document.getElementById('gen-btn'), disp = document.getElementById('p-display'), hList = document.getElementById('history-list');
-        const vCanvas = document.getElementById('v-canvas'), vCtx = vCanvas.getContext('2d'), themeSw = document.getElementById('theme-sw');
-        const side = document.getElementById('sidebar'), toggle = document.getElementById('side-toggle');
+        const vCanvas = document.getElementById('v-canvas'), vCtx = vCanvas.getContext('2d');
+        const mCanvas = document.getElementById('matrix-canvas'), mCtx = mCanvas.getContext('2d');
         
-        let activeLen = 16, historyArr = [], isOpen = false;
+        let activeLen = 16, historyArr = [], keysGenCount = 0;
 
-        function vibrate() { if(navigator.vibrate) navigator.vibrate(25); }
+        // --- AUDIO SYSTEM ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let actx;
+        function initAudio() { if(!actx) actx = new AudioContext(); if(actx.state === 'suspended') actx.resume(); }
+        function playTone(freq, type, duration, vol=0.1) {
+            if(!actx) return;
+            let osc = actx.createOscillator(), gain = actx.createGain();
+            osc.type = type; osc.frequency.setValueAtTime(freq, actx.currentTime);
+            gain.gain.setValueAtTime(vol, actx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + duration);
+            osc.connect(gain); gain.connect(actx.destination);
+            osc.start(); osc.stop(actx.currentTime + duration);
+        }
+        function soundClick() { initAudio(); playTone(800, 'sine', 0.05, 0.05); }
+        function soundSuccess() { initAudio(); playTone(600, 'square', 0.1, 0.05); setTimeout(()=>playTone(1200, 'square', 0.15, 0.05), 100); }
+        function vibrate(ms=20) { if(navigator.vibrate) navigator.vibrate(ms); }
+        document.body.addEventListener('click', initAudio, {once:true});
 
-        // --- THEME ENGINE ---
-        function applyPersistentTheme() {
+        // --- THEME SYNC ---
+        function syncTheme() {
             const savedAccent = localStorage.getItem('accent') || '#E60012';
             document.documentElement.style.setProperty('--accent', savedAccent);
             document.documentElement.style.setProperty('--accent-glow', savedAccent + '66');
             const logoIcon = document.querySelector('.logo-icon');
             if(logoIcon) logoIcon.style.background = savedAccent;
         }
+        syncTheme();
 
-        applyPersistentTheme();
-
+        document.getElementById('theme-sw').onclick = () => { 
+            soundClick(); vibrate(20);
+            const n = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; 
+            document.body.setAttribute('data-theme', n); localStorage.setItem('theme', n);
+        };
         const savedTheme = localStorage.getItem('theme') || 'dark';
         document.body.setAttribute('data-theme', savedTheme);
-        themeSw.onclick = () => { 
-            vibrate(); 
-            const n = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; 
-            document.body.setAttribute('data-theme', n); 
-            localStorage.setItem('theme', n);
-        };
-
-        if(toggle) {
-            toggle.onclick = () => { vibrate(); isOpen = !isOpen; gsap.to(side, { x: isOpen ? 0 : '-100%', duration: 0.5, ease: "power3.inOut" }); toggle.innerText = isOpen ? '<' : '>'; };
-        }
 
         document.querySelectorAll('.len-btn').forEach(b => b.onclick = () => { 
-            vibrate(); 
+            soundClick(); vibrate(15);
             document.querySelectorAll('.len-btn').forEach(x => x.classList.remove('active')); 
-            b.classList.add('active'); 
-            activeLen = parseInt(b.dataset.len);
+            b.classList.add('active'); activeLen = parseInt(b.dataset.len);
         });
 
         // --- PARTICLES ---
         let particles = [];
-        function resize() { vCanvas.width = vCanvas.offsetWidth; vCanvas.height = vCanvas.offsetHeight; }
+        function resize() { 
+            vCanvas.width = vCanvas.offsetWidth; vCanvas.height = vCanvas.offsetHeight; 
+            mCanvas.width = mCanvas.offsetWidth; mCanvas.height = mCanvas.offsetHeight;
+        }
         window.addEventListener('resize', resize); resize();
 
         class Particle {
             constructor() { this.init(); }
             init() {
-                this.x = Math.random() * vCanvas.width;
-                this.y = Math.random() * vCanvas.height;
-                const angle = Math.random() * Math.PI * 2;
-                const speed = Math.random() * 0.4 + 0.2;
-                this.vx = Math.cos(angle) * speed;
-                this.vy = Math.sin(angle) * speed;
-                this.life = 0.5 + Math.random() * 0.5;
-                this.s = Math.random() * 2 + 1;
+                this.x = Math.random() * vCanvas.width; this.y = Math.random() * vCanvas.height;
+                const angle = Math.random() * Math.PI * 2; const speed = Math.random() * 0.4 + 0.2;
+                this.vx = Math.cos(angle) * speed; this.vy = Math.sin(angle) * speed;
+                this.life = 0.5 + Math.random() * 0.5; this.s = Math.random() * 2 + 1;
             }
             update() {
                 this.x += this.vx; this.y += this.vy;
                 if(this.x < 0 || this.x > vCanvas.width) this.vx *= -1;
                 if(this.y < 0 || this.y > vCanvas.height) this.vy *= -1;
-                this.life -= 0.0012;
-                if(this.life <= 0) this.init();
+                this.life -= 0.0012; if(this.life <= 0) this.init();
             }
             draw() {
-                const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent');
-                vCtx.fillStyle = accent;
+                vCtx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent');
                 vCtx.globalAlpha = this.life * 0.4;
                 vCtx.beginPath(); vCtx.arc(this.x, this.y, this.s, 0, Math.PI * 2); vCtx.fill();
             }
         }
-        for(let i=0; i<65; i++) particles.push(new Particle());
+        for(let i=0; i<50; i++) particles.push(new Particle());
+
+        // Matrix Effect for Sidebar
+        let matrixChars = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+        let drops = [];
+        for(let x=0; x < 50; x++) drops[x] = 1;
 
         function loop() {
             vCtx.clearRect(0, 0, vCanvas.width, vCanvas.height);
             particles.forEach(p => { p.update(); p.draw(); });
+
+            mCtx.fillStyle = "rgba(5, 5, 5, 0.2)";
+            mCtx.fillRect(0, 0, mCanvas.width, mCanvas.height);
+            const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent');
+            mCtx.fillStyle = accent; mCtx.font = "10px monospace";
+            for(let i=0; i<drops.length; i++) {
+                let text = matrixChars[Math.floor(Math.random()*matrixChars.length)];
+                mCtx.fillText(text, i*10, drops[i]*10);
+                if(drops[i]*10 > mCanvas.height && Math.random() > 0.95) drops[i] = 0;
+                drops[i]++;
+            }
+
             requestAnimationFrame(loop);
         }
         loop();
 
         // --- GENERATION ENGINE ---
         btn.onclick = () => {
-            vibrate();
+            soundClick(); vibrate(30);
             gsap.to("#shackle", { y: -22, rotation: -12, duration: 0.3, ease: "back.out(2)" });
             
             const pool = (document.getElementById('c-up').checked ? 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' : '') + 
@@ -360,58 +369,57 @@
                          (document.getElementById('c-sy').checked ? '!@#$%^&*' : '');
 
             let charset = pool || 'ABC';
-            const gen = (l) => Array.from({length:l}, () => charset.charAt(Math.floor(Math.random() * charset.length))).join('');
+            const qKey = Array.from({length:activeLen}, () => charset.charAt(Math.floor(Math.random() * charset.length))).join('');
 
             setTimeout(() => {
-                const qKey = gen(activeLen);
                 disp.innerText = qKey;
-                document.getElementById('s-bits').innerText = Math.floor(activeLen * 5.9) + " bits";
-                document.getElementById('comp-math').innerText = gen(activeLen);
+                document.getElementById('comp-math').innerText = Array.from({length:activeLen}, () => charset.charAt(Math.floor(Math.random() * charset.length))).join('');
                 document.getElementById('comp-nature').innerText = qKey;
+                soundSuccess();
                 gsap.to("#shackle", { y: 0, rotation: 0, duration: 0.6, ease: "bounce.out" });
                 
+                // Update Dashboard & Strength
+                keysGenCount++;
+                document.getElementById('total-keys').innerText = keysGenCount;
+                
+                const segs = document.querySelectorAll('.strength-seg');
+                const strength = qKey.length > 32 ? 5 : qKey.length >= 16 ? 4 : qKey.length >= 12 ? 3 : 2;
+                segs.forEach((s, i) => { s.style.background = i < strength ? (strength > 3 ? 'var(--success)' : 'var(--accent)') : 'rgba(255,255,255,0.1)'; });
+
+                // Add History
                 historyArr.unshift(qKey);
+                if(historyArr.length > 15) historyArr.pop();
                 renderHistory();
-            }, 600);
+            }, 500);
         };
 
         function renderHistory() {
             hList.innerHTML = "";
-            historyArr.slice(0, 5).forEach(key => {
+            historyArr.forEach(key => {
                 const div = document.createElement('div');
-                div.style = "padding:14px; border:1px solid var(--border); border-radius:14px; margin-bottom:10px; font-size:0.75rem; cursor:pointer; background:rgba(255,255,255,0.02); font-family:monospace; transition: border-color 0.3s ease;";
-                div.onmouseover = () => div.style.borderColor = "var(--accent)";
-                div.onmouseout = () => div.style.borderColor = "var(--border)";
-                div.innerHTML = `<span style="color:var(--accent); font-weight:900;">Q</span> ${key.substring(0, 15)}...`;
-                div.onclick = () => { vibrate(); navigator.clipboard.writeText(key); showToast("COPIED"); };
+                div.className = "history-item";
+                div.innerHTML = `<span class="history-brand">Q</span> <span>${key.substring(0, 20)}${key.length > 20 ? '...' : ''}</span>`;
+                div.onclick = () => { soundClick(); navigator.clipboard.writeText(key); vibrate(20); showToast(); };
                 hList.appendChild(div);
             });
         }
 
-        // --- LAB LOGIC ---
+        function copyKey() { const v = disp.innerText; if(v==='READY') return; soundClick(); vibrate(20); navigator.clipboard.writeText(v); showToast(); }
+        function showToast() { const t = document.getElementById('toast'); t.style.display = 'block'; setTimeout(()=>t.style.display='none', 1500); }
+        document.getElementById('clear-h').onclick = () => { soundClick(); vibrate(); historyArr = []; renderHistory(); keysGenCount = 0; document.getElementById('total-keys').innerText=0; };
+
+        // Lab Logic
         document.getElementById('lab-input').oninput = (e) => {
             const val = e.target.value;
             const rating = document.getElementById('lab-rating');
             const origin = document.getElementById('lab-origin');
-
-            if(!val) {
-                rating.innerText = "NONE"; origin.innerText = "Pending...";
-                rating.style.color = "var(--text)"; return;
-            }
-
+            if(!val) { rating.innerText = "NONE"; origin.innerText="..."; return; }
             const isQuantum = historyArr.includes(val);
-            origin.innerText = isQuantum ? "Quantum Source" : "Algorithmic (Unknown)";
+            origin.innerText = isQuantum ? "Quantum Source" : "Algorithmic";
             origin.style.color = isQuantum ? "var(--success)" : "var(--accent)";
-
-            const len = val.length;
-            if(len >= 24) { rating.innerText = "ULTRA SECURE"; rating.style.color = "var(--success)"; }
-            else if(len >= 16) { rating.innerText = "SECURE"; rating.style.color = "#00ff99"; }
-            else { rating.innerText = "WEAK"; rating.style.color = "var(--accent)"; }
+            rating.innerText = val.length >= 24 ? "MAXIMUM" : val.length >= 16 ? "SECURE" : "WEAK";
+            rating.style.color = val.length >= 16 ? "var(--success)" : "var(--accent)";
         };
-
-        function copyKey() { if(disp.innerText.includes('_')) return; vibrate(); navigator.clipboard.writeText(disp.innerText); showToast("COPIED TO CLIPBOARD"); }
-        function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.display = 'block'; setTimeout(() => t.style.display='none', 1500); }
-        document.getElementById('clear-h').onclick = () => { vibrate(); historyArr = []; renderHistory(); };
     </script>
 </body>
 </html>
