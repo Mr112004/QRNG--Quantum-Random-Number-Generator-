@@ -45,12 +45,17 @@
         .logo { display: flex; align-items: center; gap: 10px; font-weight: 900; text-transform: uppercase; text-decoration: none; color: var(--text); font-size: 0.9rem; }
         .logo-icon { background: var(--accent); padding: 5px 12px; border-radius: 6px; color: var(--btn-text-color); box-shadow: 0 0 15px var(--accent-glow); transition: 0.5s; }
 
+        .header-actions { display: flex; align-items: center; gap: 15px; }
+        
+        .audio-toggle-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; opacity: 0.6; transition: 0.3s; }
+        .audio-toggle-btn:hover { opacity: 1; transform: scale(1.1); }
+
         .theme-pill-container { background: #181818; border-radius: 12px; padding: 4px; display: flex; position: relative; width: 85px; height: 38px; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); }
         .theme-slider-red { position: absolute; width: 36px; height: 30px; background: var(--accent); border-radius: 8px; top: 4px; left: 4px; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1; box-shadow: 0 0 12px var(--accent-glow); }
         body[data-theme="light"] .theme-slider-red { transform: translateX(41px); }
-        .theme-icon { flex: 1; display: flex; align-items: center; justify-content: center; z-index: 2; transition: 0.3s; opacity: 0.4; }
-        body[data-theme="dark"] .icon-moon, body[data-theme="light"] .icon-sun { opacity: 1; color: #fff;}
-        .theme-icon svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 2; }
+        .theme-icon { flex: 1; display: flex; align-items: center; justify-content: center; z-index: 2; transition: 0.3s; opacity: 0.4; color: #ffffff; }
+        body[data-theme="dark"] .icon-moon, body[data-theme="light"] .icon-sun { opacity: 1; color: var(--btn-text-color, #ffffff); }
+        .theme-icon svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
 
         /* --- LAYOUT --- */
         .main-container { max-width: 1400px; margin: 0 auto; padding: 90px 25px 25px; display: grid; grid-template-columns: 340px 1fr; gap: 25px; align-items: start; }
@@ -62,8 +67,8 @@
         }
 
         /* --- CARDS & UI --- */
-        .card { background: var(--card); border: 1.5px solid var(--border); border-radius: 24px; position: relative; overflow: hidden; margin-bottom: 20px; transition: border-color 0.3s, box-shadow 0.3s; width: 100%; }
-        .card:hover { border-color: var(--accent); box-shadow: 0 0 20px rgba(255,255,255,0.02); }
+        .card { background: var(--card); border: 1.5px solid var(--accent); border-radius: 24px; position: relative; overflow: hidden; margin-bottom: 20px; transition: border-color 0.3s, box-shadow 0.3s; width: 100%; box-shadow: 0 0 10px rgba(0,0,0,0.2); }
+        .card:hover { box-shadow: 0 0 20px var(--accent-glow); }
 
         .card-image-area { height: 280px; background: var(--canvas-bg); position: relative; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--border); overflow: hidden; }
         
@@ -92,6 +97,28 @@
         .len-btn.active { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); color: var(--btn-text-color); }
         .len-btn:active { transform: scale(0.95); }
 
+        .custom-len-input {
+            background: rgba(255,255,255,0.02); border: 1px dashed var(--border); color: var(--text);
+            padding: 10px 14px; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-weight: 900; font-size: 0.8rem;
+            width: 75px; outline: none; transition: 0.3s; text-align: center;
+        }
+        .custom-len-input:focus { border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); background: rgba(255,255,255,0.05); }
+        .custom-len-input::placeholder { color: var(--muted); opacity: 0.5; }
+        .custom-len-input::-webkit-outer-spin-button, .custom-len-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .custom-len-input[type=number] { -moz-appearance: textfield; }
+
+        /* RANGE SLIDER */
+        .range-slider { 
+            -webkit-appearance: none; width: 100%; height: 6px; border-radius: 5px; 
+            background: rgba(255,255,255,0.1); outline: none; margin-top: 15px; 
+        }
+        .range-slider::-webkit-slider-thumb { 
+            -webkit-appearance: none; appearance: none; width: 18px; height: 18px; 
+            border-radius: 50%; background: var(--accent); cursor: pointer; 
+            box-shadow: 0 0 15px var(--accent-glow); transition: 0.2s;
+        }
+        .range-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
         .pool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .pool-item { display: flex; align-items: center; gap: 8px; font-size: 0.7rem; font-weight: 800; color: var(--muted); cursor: pointer; }
         .pool-item input { accent-color: var(--accent); width: 16px; height: 16px; }
@@ -103,10 +130,13 @@
         
         .password-box { 
             background: rgba(0,0,0,0.03); border: 1.5px solid var(--border); border-radius: 16px; 
-            padding: 20px; font-family: 'JetBrains Mono', monospace; font-size: clamp(1rem, 4vw, 1.35rem); 
+            padding: 20px 40px 20px 20px; font-family: 'JetBrains Mono', monospace; font-size: clamp(1rem, 4vw, 1.35rem); 
             text-align: center; color: var(--text); cursor: pointer; transition: 0.3s; 
             min-height: 80px; display: flex; align-items: center; justify-content: center; word-break: break-all; width: 100%; position: relative;
         }
+        .privacy-btn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 1.2rem; cursor: pointer; opacity: 0.5; transition: 0.3s; outline: none; }
+        .privacy-btn:hover { opacity: 1; color: var(--accent); }
+
         .cursor { display: none; width: 8px; height: 1.2rem; background: var(--accent); animation: blink 1s step-end infinite; margin-left: 5px; }
         
         .btn-gen { 
@@ -142,7 +172,7 @@
         .history-list { max-height: 300px; overflow-y: auto; }
         .history-item { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 10px; cursor: pointer; background: rgba(255,255,255,0.02); font-family: 'JetBrains Mono'; font-size: 0.75rem; transition: 0.2s; }
         .history-item:active { transform: scale(0.98); border-color: var(--accent); }
-        .history-brand { background: var(--accent); color: var(--btn-text-color); padding: 3px 6px; border-radius: 4px; font-weight: 900; font-size: 0.6rem; }
+        .history-brand { background: var(--accent); color: var(--btn-text-color); padding: 3px 6px; border-radius: 4px; font-weight: 900; font-size: 0.6rem; transition: 0.3s; min-width: 25px; text-align: center;}
 
         /* --- QR MODAL --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 9999; display: none; justify-content: center; align-items: center; opacity: 0; transition: 0.3s; }
@@ -188,10 +218,16 @@
                 <div class="logo-text">SUPER <span>QUANTUM</span></div>
             </a>
         </div>
-        <div class="theme-pill-container" id="theme-sw">
-            <div class="theme-slider-red"></div>
-            <div class="theme-icon icon-moon"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor"/></svg></div>
-            <div class="theme-icon icon-sun"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" stroke="currentColor"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42m12.72-12.72l1.42-1.42" stroke="currentColor"/></svg></div>
+        
+        <div class="header-actions">
+            <!-- Audio Toggle -->
+            <button class="audio-toggle-btn" id="audio-toggle" title="Toggle Sound">🔊</button>
+            
+            <div class="theme-pill-container" id="theme-sw">
+                <div class="theme-slider-red"></div>
+                <div class="theme-icon icon-moon"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor"/></svg></div>
+                <div class="theme-icon icon-sun"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" stroke="currentColor"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42m12.72-12.72l1.42-1.42" stroke="currentColor"/></svg></div>
+            </div>
         </div>
     </header>
 
@@ -269,7 +305,10 @@
                             <button class="len-btn" data-len="24">24</button>
                             <button class="len-btn" data-len="32">32</button>
                             <button class="len-btn" data-len="64">64</button>
+                            <input type="number" id="custom-len" class="custom-len-input" min="8" max="128" placeholder="Cstm">
                         </div>
+                        <!-- NEW: Precision Range Slider -->
+                        <input type="range" id="len-slider" class="range-slider" min="8" max="128" value="16">
                     </div>
                     <div>
                         <span class="control-label">Entropy Pools</span>
@@ -285,7 +324,12 @@
 
                 <div class="gen-container">
                     <div class="password-row">
-                        <div class="password-box" id="p-display" onclick="copyKey()">READY <span class="cursor" id="cursor"></span></div>
+                        <!-- PRIVACY OBFUSCATION BOX -->
+                        <div class="password-box" id="p-box" onclick="copyKey()">
+                            <span id="p-display">READY</span>
+                            <span class="cursor" id="cursor"></span>
+                            <button class="privacy-btn" id="privacy-toggle" title="Toggle Privacy Mode" onclick="togglePrivacy(event)">👁️</button>
+                        </div>
                         <button class="btn-gen" id="gen-btn">GENERATE <span>QUANTUM KEY</span></button>
                     </div>
 
@@ -352,13 +396,18 @@
         let activeLen = 16, historyArr = [];
         let apiConnected = false;
         let clipboardTimeout;
+        
+        // State variables
+        let currentKey = "READY"; // Holds actual key regardless of privacy mode
+        let isPrivacyMode = false;
+        let audioEnabled = true;
 
         // --- AUDIO & HAPTICS ---
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         let actx;
         function initAudio() { if(!actx) actx = new AudioContext(); if(actx.state === 'suspended') actx.resume(); }
         function playTone(freq, type, duration, vol=0.1) {
-            if(!actx) return;
+            if(!actx || !audioEnabled) return;
             let osc = actx.createOscillator(), gain = actx.createGain();
             osc.type = type; osc.frequency.setValueAtTime(freq, actx.currentTime);
             gain.gain.setValueAtTime(vol, actx.currentTime);
@@ -372,36 +421,37 @@
         function vibrate(ms=20) { if(navigator.vibrate) navigator.vibrate(ms); }
         document.body.addEventListener('click', initAudio, {once:true});
 
+        // Audio Toggle
+        document.getElementById('audio-toggle').onclick = () => {
+            audioEnabled = !audioEnabled;
+            document.getElementById('audio-toggle').innerText = audioEnabled ? '🔊' : '🔇';
+            document.getElementById('audio-toggle').style.opacity = audioEnabled ? '1' : '0.4';
+            if(audioEnabled) soundClick();
+        };
+
         // --- THEME SYNC ---
         function syncTheme() {
-            // Retrieve exact values generated by the Landing page selector
             const savedAccent = localStorage.getItem('accent') || '#E60012';
             const savedBg = localStorage.getItem('theme_bg') || '#050505';
-            
-            // Text color inside buttons must adjust for "Classic Black" mode where accent is white
             const savedBtnText = savedAccent === '#ffffff' ? '#000000' : '#ffffff';
             
             document.documentElement.style.setProperty('--accent', savedAccent);
             document.documentElement.style.setProperty('--accent-glow', savedAccent + '66');
             document.documentElement.style.setProperty('--btn-text-color', savedBtnText);
             
-            // Only apply custom dark background if we are not toggled into light mode
             if (document.body.getAttribute('data-theme') !== 'light') {
                 document.documentElement.style.setProperty('--bg', savedBg);
             }
         }
         
-        // Apply instantly on load
         const savedTheme = localStorage.getItem('theme') || 'dark';
         document.body.setAttribute('data-theme', savedTheme);
         syncTheme();
 
-        // Manual Light/Dark Toggle logic
         document.getElementById('theme-sw').onclick = () => { 
             soundClick(); vibrate(20);
             const n = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; 
             document.body.setAttribute('data-theme', n); localStorage.setItem('theme', n);
-            
             if (n === 'dark') {
                 const savedBg = localStorage.getItem('theme_bg') || '#050505';
                 document.documentElement.style.setProperty('--bg', savedBg);
@@ -410,11 +460,42 @@
             }
         };
 
+        // --- SLIDER & LENGTH LOGIC ---
+        function updateLengthUI(len) {
+            document.querySelectorAll('.len-btn').forEach(x => x.classList.remove('active'));
+            const btn = document.querySelector(`.len-btn[data-len="${len}"]`);
+            if(btn) btn.classList.add('active');
+            
+            document.getElementById('custom-len').value = btn ? '' : len;
+            document.getElementById('len-slider').value = len;
+            activeLen = len;
+        }
+
         document.querySelectorAll('.len-btn').forEach(b => b.onclick = () => { 
             soundClick(); vibrate(15);
-            document.querySelectorAll('.len-btn').forEach(x => x.classList.remove('active')); 
-            b.classList.add('active'); activeLen = parseInt(b.dataset.len);
-            document.getElementById('preset-select').value = 'custom'; // reset preset if manual change
+            updateLengthUI(parseInt(b.dataset.len));
+            document.getElementById('preset-select').value = 'custom';
+        });
+
+        const customLenInput = document.getElementById('custom-len');
+        customLenInput.addEventListener('input', (e) => {
+            let val = parseInt(e.target.value);
+            if (!isNaN(val)) {
+                if (val > 128) { val = 128; e.target.value = 128; }
+                updateLengthUI(val);
+                document.getElementById('preset-select').value = 'custom';
+            }
+        });
+        customLenInput.addEventListener('change', (e) => {
+            let val = parseInt(e.target.value);
+            if (isNaN(val) || val < 8) { val = 8; e.target.value = 8; updateLengthUI(8); }
+        });
+
+        const lenSlider = document.getElementById('len-slider');
+        lenSlider.addEventListener('input', (e) => {
+            let val = parseInt(e.target.value);
+            updateLengthUI(val);
+            document.getElementById('preset-select').value = 'custom';
         });
 
         // --- CONTEXT-AWARE AI PRESETS ---
@@ -422,31 +503,39 @@
             soundClick(); vibrate();
             const val = e.target.value;
             const setUI = (len, u, l, n, s, amb) => {
-                document.querySelectorAll('.len-btn').forEach(x => x.classList.remove('active'));
-                const btn = document.querySelector(`.len-btn[data-len="${len}"]`);
-                if(btn) btn.classList.add('active');
-                activeLen = len;
+                updateLengthUI(len);
                 document.getElementById('c-up').checked = u;
                 document.getElementById('c-lo').checked = l;
                 document.getElementById('c-nu').checked = n;
                 document.getElementById('c-sy').checked = s;
                 document.getElementById('c-ambig').checked = amb;
             };
-
             if(val === 'crypto') setUI(64, true, true, true, true, false);
             if(val === 'api') setUI(32, true, true, true, false, true);
             if(val === 'wifi') setUI(24, true, true, true, true, true);
             if(val === 'pin') setUI(8, false, false, true, false, false);
         };
 
-        // --- NETWORK SIMULATION / CHECK ---
+        // --- PRIVACY MODE ---
+        function togglePrivacy(e) {
+            e.stopPropagation(); // prevent copying when toggling
+            soundClick(); vibrate(10);
+            isPrivacyMode = !isPrivacyMode;
+            document.getElementById('privacy-toggle').innerText = isPrivacyMode ? '🔒' : '👁️';
+            document.getElementById('privacy-toggle').style.opacity = isPrivacyMode ? '1' : '0.5';
+            
+            if(currentKey !== "READY") {
+                disp.innerText = isPrivacyMode ? '•'.repeat(currentKey.length) : currentKey;
+            }
+        }
+
+        // --- NETWORK & PARTICLES ---
         setTimeout(() => {
             document.getElementById('net-status').classList.add('active');
             document.getElementById('net-text').innerText = "QUANTUM API READY";
             apiConnected = true;
         }, 1500);
 
-        // --- PARTICLES ---
         let particles = [];
         function resize() { vCanvas.width = vCanvas.offsetWidth; vCanvas.height = vCanvas.offsetHeight; }
         window.addEventListener('resize', resize); resize();
@@ -475,7 +564,7 @@
         function loop() { vCtx.clearRect(0, 0, vCanvas.width, vCanvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(loop); }
         loop();
 
-        // --- SHANNON ENTROPY MATH ---
+        // --- MATH & CRYPTO FORENSICS ---
         function calcEntropy(str) {
             if(!str) return 0;
             const len = str.length;
@@ -483,7 +572,6 @@
             return Object.values(frequencies).reduce((sum, f) => sum - (f/len) * Math.log2(f/len), 0);
         }
 
-        // --- RISK INDEX CALCULATOR ---
         function formatCrackTime(seconds) {
             if(seconds < 1) return "Instant";
             if(seconds < 60) return `${Math.floor(seconds)}s`;
@@ -499,47 +587,35 @@
         function calculateRisk(length, poolSize) {
             if(length === 0 || poolSize === 0) return { pc: '0s', super: '0s', q: '0s' };
             const combinations = Math.pow(poolSize, length);
-            
-            // Standard PC: ~10 Billion guesses/sec
             const timePC = combinations / 10000000000;
-            // Supercomputer: ~1000 Trillion guesses/sec
             const timeSuper = combinations / 1000000000000000;
-            // Quantum Computer (Grover's Algorithm estimation sqrt(C))
             const timeQuantum = Math.sqrt(combinations) / 100000000;
-
-            return {
-                pc: formatCrackTime(timePC),
-                super: formatCrackTime(timeSuper),
-                q: formatCrackTime(timeQuantum)
-            };
+            return { pc: formatCrackTime(timePC), super: formatCrackTime(timeSuper), q: formatCrackTime(timeQuantum) };
         }
 
-        // --- GENERATION LOGIC ---
+        // --- GENERATION ENGINE (WITH MATRIX DECRYPT) ---
         btn.onclick = async () => {
             soundHum(); vibrate(40);
             gsap.to("#shackle", { y: -22, rotation: -12, duration: 0.3, ease: "back.out(2)" });
             
             const cursor = document.getElementById('cursor');
-            if(cursor) cursor.style.display = 'inline-block';
+            if(cursor && !isPrivacyMode) cursor.style.display = 'inline-block';
             
-            // Build Pool
             let pool = (document.getElementById('c-up').checked ? 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' : '') + 
                        (document.getElementById('c-lo').checked ? 'abcdefghijklmnopqrstuvwxyz' : '') +
                        (document.getElementById('c-nu').checked ? '0123456789' : '') +
                        (document.getElementById('c-sy').checked ? '!@#$%^&*' : '');
             
-            if(document.getElementById('c-ambig').checked) {
-                pool = pool.replace(/[il1LoO0]/g, '');
-            }
-            if(!pool) pool = 'ABC'; // fail safe
+            if(document.getElementById('c-ambig').checked) pool = pool.replace(/[il1LoO0]/g, '');
+            if(!pool) pool = 'ABC';
 
             let qKey = "";
             let origin = "Algorithmic";
 
-            // Attempt True Fetch
+            // Network Fetch
             try {
                 if(apiConnected) {
-                    const res = await fetch('/generate-password'); // Call to app.py
+                    const res = await fetch('/generate-password'); 
                     const data = await res.json();
                     if(data.origin === 'Quantum') {
                         origin = "ANU Quantum Lab";
@@ -548,52 +624,37 @@
                 }
             } catch(e) { console.log("Falling back to local algorithm generator."); }
 
-            if(!qKey) {
-                qKey = Array.from({length:activeLen}, () => pool.charAt(Math.floor(Math.random() * pool.length))).join('');
-            }
+            if(!qKey) qKey = Array.from({length:activeLen}, () => pool.charAt(Math.floor(Math.random() * pool.length))).join('');
+            currentKey = qKey;
 
-            // Cryptographic Typing Effect
-            let iterations = 0;
-            let interval = setInterval(() => {
-                disp.innerHTML = qKey.split('').map((c, i) => {
-                    if(i < iterations) return c;
-                    return pool[Math.floor(Math.random() * pool.length)];
-                }).join('') + '<span class="cursor" id="cursor" style="display: inline-block;"></span>';
-                
-                iterations += 0.8; 
-                if(iterations >= qKey.length) {
-                    clearInterval(interval);
-                    disp.innerHTML = qKey;
-                    finishGeneration(qKey, origin, pool.length);
-                }
-            }, 30);
+            // Display Key Instantly
+            disp.innerText = isPrivacyMode ? '•'.repeat(qKey.length) : qKey;
+            finishGeneration(qKey, origin, pool.length);
         };
 
         function finishGeneration(qKey, origin, poolSize) {
             soundSuccess();
             gsap.to("#shackle", { y: 0, rotation: 0, duration: 0.6, ease: "bounce.out" });
             
-            // Update Audit & Math Proof
+            // Audit Math Proof
             const H = calcEntropy(qKey);
             const totalBits = Math.floor(H * qKey.length);
             document.getElementById('audit-bits').innerText = totalBits;
             
-            // Update Comparison
-            document.getElementById('comp-math').innerText = qKey.split('').reverse().join('');
-            document.getElementById('comp-nature').innerText = qKey;
+            // Comparison
+            document.getElementById('comp-math').innerText = isPrivacyMode ? '••••••••' : qKey.split('').reverse().join('');
+            document.getElementById('comp-nature').innerText = isPrivacyMode ? '••••••••' : qKey;
 
-            // Trigger Lab Forensics Auto-Run
+            // Auto-Evaluating Lab 
             document.getElementById('lab-input').value = qKey;
             document.getElementById('lab-input').dispatchEvent(new Event('input'));
-            
-            // Inject pool size trick for risk calculation
             document.getElementById('lab-input').setAttribute('data-poolsize', poolSize);
 
-            // Hide Action overlays
+            // Resets
             document.getElementById('nato-display').style.display = 'none';
             document.getElementById('split-display').style.display = 'none';
 
-            // Add History
+            // Smart History
             historyArr.unshift({key: qKey, origin: origin});
             if(historyArr.length > 20) historyArr.pop();
             renderHistory();
@@ -601,24 +662,36 @@
 
         function renderHistory() {
             hList.innerHTML = "";
-            historyArr.forEach(item => {
+            historyArr.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.className = "history-item";
-                div.innerHTML = `<span class="history-brand">Q</span> <span>${item.key.substring(0, 20)}${item.key.length > 20 ? '...' : ''}</span>`;
-                div.onclick = () => { soundClick(); navigator.clipboard.writeText(item.key); vibrate(20); showCopyToast(); };
+                div.innerHTML = `<span class="history-brand" id="hb-${index}">Q</span> <span>${isPrivacyMode ? '••••••••••••' : item.key.substring(0, 20)}${item.key.length > 20 && !isPrivacyMode ? '...' : ''}</span>`;
+                
+                // Smart History Interaction (Checkmark flip)
+                div.onclick = () => { 
+                    soundClick(); vibrate(20);
+                    navigator.clipboard.writeText(item.key); 
+                    showCopyToast(); 
+                    
+                    const badge = div.querySelector('.history-brand');
+                    badge.innerText = '✔';
+                    badge.style.background = 'var(--success)';
+                    setTimeout(() => {
+                        badge.innerText = 'Q';
+                        badge.style.background = 'var(--accent)';
+                    }, 1500);
+                };
                 hList.appendChild(div);
             });
         }
 
         // --- ACTIONS ---
         function copyKey() { 
-            const v = disp.innerText; 
-            if(v==='READY' || !v) return; 
-            soundClick(); 
-            vibrate(20); 
+            if(currentKey === 'READY' || !currentKey) return; 
+            soundClick(); vibrate(20); 
             
             const tempTextArea = document.createElement("textarea");
-            tempTextArea.value = v;
+            tempTextArea.value = currentKey;
             document.body.appendChild(tempTextArea);
             tempTextArea.select();
             
@@ -626,12 +699,11 @@
                 document.execCommand('copy');
                 showCopyToast();
             } catch (err) {
-                console.error('Failed to copy text', err);
+                console.error('Failed to copy', err);
             }
             document.body.removeChild(tempTextArea);
         }
 
-        // Clipboard Protection Logic
         function showCopyToast() { 
             const t = document.getElementById('toast'); 
             const sub = document.getElementById('toast-sub');
@@ -643,7 +715,6 @@
             sub.innerText = `Auto-clearing clipboard in ${timeLeft}s...`;
             
             clearTimeout(clipboardTimeout);
-            
             let countInterval = setInterval(() => {
                 timeLeft--;
                 sub.innerText = `Auto-clearing clipboard in ${timeLeft}s...`;
@@ -652,7 +723,7 @@
 
             clipboardTimeout = setTimeout(() => {
                 const tempTextArea = document.createElement("textarea");
-                tempTextArea.value = " "; // Blank out clipboard
+                tempTextArea.value = " ";
                 document.body.appendChild(tempTextArea);
                 tempTextArea.select();
                 document.execCommand('copy');
@@ -676,45 +747,41 @@
 
         document.getElementById('clear-h').onclick = () => { soundClick(); vibrate(); historyArr = []; renderHistory(); };
 
-        // Split Key Logic
         document.getElementById('split-toggle').onclick = () => {
-            const val = disp.innerText;
-            if(val === 'READY' || !val) return;
+            if(currentKey === 'READY' || !currentKey) return;
             soundClick(); vibrate();
             const sd = document.getElementById('split-display');
             if(sd.style.display === 'flex') { sd.style.display = 'none'; return; }
             sd.style.display = 'flex';
             
-            const mid = Math.floor(val.length / 2);
-            document.getElementById('split-a').innerText = val.slice(0, mid);
-            document.getElementById('split-b').innerText = val.slice(mid);
+            const mid = Math.floor(currentKey.length / 2);
+            document.getElementById('split-a').innerText = isPrivacyMode ? '••••••••' : currentKey.slice(0, mid);
+            document.getElementById('split-b').innerText = isPrivacyMode ? '••••••••' : currentKey.slice(mid);
+            // Hide actual values in HTML attributes for copying safely
+            document.getElementById('split-a').setAttribute('data-actual', currentKey.slice(0, mid));
+            document.getElementById('split-b').setAttribute('data-actual', currentKey.slice(mid));
         };
 
         function copySplit(id) {
             const el = document.getElementById(id);
-            if(!el || !el.innerText) return;
+            const actualVal = el.getAttribute('data-actual');
+            if(!actualVal) return;
             soundClick(); vibrate(20);
             
             const tempTextArea = document.createElement("textarea");
-            tempTextArea.value = el.innerText;
+            tempTextArea.value = actualVal;
             document.body.appendChild(tempTextArea);
             tempTextArea.select();
             
             try {
                 document.execCommand('copy');
                 showToast("✓ PART COPIED");
-            } catch (err) {
-                console.error('Failed to copy text', err);
-            }
+            } catch (err) { }
             document.body.removeChild(tempTextArea);
         }
 
-        // Export .ENV
         function exportEnv() {
-            if(historyArr.length === 0) {
-                showToast("NO KEYS TO EXPORT");
-                return;
-            }
+            if(historyArr.length === 0) { showToast("NO KEYS TO EXPORT"); return; }
             soundClick(); vibrate(30);
             let content = historyArr.map((k, i) => `QUANTUM_KEY_${i+1}="${k.key}"`).join('\n');
             let blob = new Blob([content], {type: 'text/plain'});
@@ -723,14 +790,12 @@
             showToast("✓ EXPORTED .ENV");
         }
 
-        // QR Code Logic
         function showQR() {
-            const val = disp.innerText;
-            if(val === 'READY' || !val) return;
+            if(currentKey === 'READY' || !currentKey) return;
             soundClick(); vibrate();
             document.getElementById('qr-modal').style.display = 'flex';
             setTimeout(() => { document.getElementById('qr-modal').style.opacity = 1; }, 10);
-            new QRious({ element: document.getElementById('qr-canvas-element'), value: val, size: 220, background: '#050505', foreground: '#ffffff' });
+            new QRious({ element: document.getElementById('qr-canvas-element'), value: currentKey, size: 220, background: '#050505', foreground: '#ffffff' });
         }
         function closeQR(e) {
             if(e.target.id === 'qr-modal' || e.target.classList.contains('close-modal')) {
@@ -739,16 +804,14 @@
             }
         }
 
-        // NATO Logic
         const natoDict = {A:'Alpha', B:'Bravo', C:'Charlie', D:'Delta', E:'Echo', F:'Foxtrot', G:'Golf', H:'Hotel', I:'India', J:'Juliet', K:'Kilo', L:'Lima', M:'Mike', N:'November', O:'Oscar', P:'Papa', Q:'Quebec', R:'Romeo', S:'Sierra', T:'Tango', U:'Uniform', V:'Victor', W:'Whiskey', X:'X-ray', Y:'Yankee', Z:'Zulu', '1':'One', '2':'Two', '3':'Three', '4':'Four', '5':'Five', '6':'Six', '7':'Seven', '8':'Eight', '9':'Nine', '0':'Zero'};
         document.getElementById('nato-toggle').onclick = () => {
-            const val = disp.innerText;
-            if(val === 'READY' || !val) return;
+            if(currentKey === 'READY' || !currentKey) return;
             soundClick(); vibrate();
             const nd = document.getElementById('nato-display');
             if(nd.style.display === 'block') { nd.style.display = 'none'; return; }
             nd.style.display = 'block';
-            nd.innerText = val.split('').map(c => natoDict[c.toUpperCase()] || `[${c}]`).join(' - ');
+            nd.innerText = isPrivacyMode ? "NATO Mode Disabled for Privacy." : currentKey.split('').map(c => natoDict[c.toUpperCase()] || `[${c}]`).join(' - ');
         };
 
         // Lab Math Proof & Risk Analyzer
@@ -766,14 +829,12 @@
                 return; 
             }
             
-            // Shannon Entropy
             const H = calcEntropy(val);
             const totalBits = Math.floor(H * val.length);
             
             document.getElementById('lab-h').innerText = H.toFixed(3);
             document.getElementById('lab-bits').innerText = totalBits;
 
-            // Rating
             const isQuantum = historyArr.some(h => h.key === val);
             origin.innerText = isQuantum ? "Quantum Source" : "Algorithmic";
             origin.style.color = isQuantum ? "var(--success)" : "var(--accent)";
@@ -781,7 +842,6 @@
             rating.innerText = totalBits >= 128 ? "MILITARY GRADE" : totalBits >= 64 ? "SECURE" : "WEAK";
             rating.style.color = totalBits >= 64 ? "var(--success)" : "var(--danger)";
 
-            // Risk Analyzer (Crack Times)
             let poolSize = parseInt(e.target.getAttribute('data-poolsize')) || 62; 
             const risks = calculateRisk(val.length, poolSize);
             
@@ -789,7 +849,6 @@
             document.getElementById('crack-super').innerText = risks.super;
             document.getElementById('crack-quantum').innerText = risks.q;
             
-            // Color code risks
             document.getElementById('crack-pc').style.color = risks.pc.includes('s') || risks.pc.includes('m') ? "var(--danger)" : "var(--accent)";
             document.getElementById('crack-quantum').style.color = risks.q.includes('Yrs') || risks.q.includes('Infinity') ? "var(--success)" : "var(--accent)";
         };
