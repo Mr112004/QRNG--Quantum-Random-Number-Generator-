@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Admin | Analytics</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;900&family=Roboto:wght@400;900&display=swap"
+        rel="stylesheet">
+    <style>
+        /* --- CORE CSS RESET --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #050505;
+            --card: #0c0c0c;
+            --border: rgba(255, 255, 255, 0.1);
+            --accent: #E60012;
+            --accent-glow: rgba(230, 0, 18, 0.4);
+            --text: #fff;
+            --muted: #9ca3af;
+            --success: #22c55e;
+            --btn-text-color: #ffffff;
+        }
+
+        body[data-theme="light"] {
+            --bg: #f5f5f7;
+            --card: #ffffff;
+            --text: #1d1d1f;
+            --border: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Roboto', sans-serif;
+            padding: 50px 40px 40px;
+            min-height: 100vh;
+            transition: background 0.4s ease;
+            position: relative;
+        }
+
+        h1 {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin: 0;
+            font-size: 2.2rem;
+        }
+
+        h1 span {
+            color: var(--accent);
+            transition: color 0.4s;
+        }
+
+        /* --- ABSOLUTE TOP-RIGHT LIVE SYNC --- */
+        .live-indicator {
+            position: absolute;
+            top: 25px;
+            right: 40px;
+            color: var(--success);
+            font-size: 0.75rem;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+            box-shadow: 0 0 10px var(--success);
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.9);
+                opacity: 0.7;
+            }
+
+            50% {
+                transform: scale(1.3);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(0.9);
+                opacity: 0.7;
+            }
+        }
+
+        /* --- HORIZONTAL METRICS GRID --- */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 900px) {
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .metric-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 25px;
+            border-radius: 16px;
+            border-top: 3px solid var(--accent);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+            transition: 0.3s;
+        }
+
+        .metric-title {
+            font-size: 0.75rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            font-weight: 900;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .metric-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.5rem;
+            font-weight: 900;
+            transition: color 0.3s;
+        }
+
+        /* --- TABLE --- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+            transition: 0.3s;
+        }
+
+        th {
+            color: var(--muted);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        tr:hover {
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        body[data-theme="light"] th {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        body[data-theme="light"] tr:hover {
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        .origin-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 900;
+            font-size: 0.65rem;
+        }
+
+        .origin-q {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border: 1px solid #22c55e;
+        }
+
+        .origin-a {
+            background: rgba(230, 0, 18, 0.2);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        /* --- ALIGNED HEADER & CONTROLS --- */
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .control-divider {
+            width: 2px;
+            height: 24px;
+            background: var(--border);
+            border-radius: 2px;
+            margin: 0 5px;
+        }
+
+        /* Button alignment fix: fixed 38px height */
+        .refresh-btn {
+            background: var(--card);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 0 16px;
+            height: 38px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .refresh-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--btn-text-color);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* --- THEME DOTS & TOGGLE --- */
+        /* Fixed 38px height for perfect inline alignment */
+        .theme-options {
+            display: flex;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 0 12px;
+            height: 38px;
+            align-items: center;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: 0.3s;
+        }
+
+        body[data-theme="light"] .theme-options {
+            background: #e0e0e0;
+        }
+
+        .theme-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: 0.3s;
+            position: relative;
+        }
+
+        .theme-dot::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 1px solid transparent;
+            transition: 0.3s;
+        }
+
+        .theme-dot.active::after {
+            border-color: inherit;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .theme-pill-container {
+            background: #181818;
+            border-radius: 12px;
+            padding: 4px;
+            display: flex;
+            position: relative;
+            width: 85px;
+            height: 38px;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: 0.3s;
+        }
+
+        body[data-theme="light"] .theme-pill-container {
+            background: #e0e0e0;
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-slider-red {
+            position: absolute;
+            width: 36px;
+            height: 30px;
+            background: var(--accent);
+            border-radius: 8px;
+            top: 3px;
+            left: 3px;
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1;
+            box-shadow: 0 0 12px var(--accent-glow);
+        }
+
+        body[data-theme="light"] .theme-slider-red {
+            transform: translateX(41px);
+        }
+
+        .theme-icon {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            transition: 0.3s;
+            opacity: 0.4;
+            color: #ffffff;
+        }
+
+        body[data-theme="light"] .theme-icon {
+            color: #000;
+        }
+
+        body[data-theme="dark"] .icon-moon,
+        body[data-theme="light"] .icon-sun {
+            opacity: 1;
+            color: var(--btn-text-color, #ffffff);
+        }
+
+        .theme-icon svg {
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ABSOLUTE TOP RIGHT SYNC -->
+    <div class="live-indicator"><span class="live-dot"></span> Live Sync Active</div>
+
+    <div class="header-bar">
+        <h1>Quantum <span>Telemetry</span></h1>
+
+        <div class="header-controls">
+
+            <div class="control-group">
+                <!-- Theme Switchers -->
+                <div class="theme-options">
+                    <div class="theme-dot" data-color="#FFFFFF" style="background:#ffffff; border-color:#ffffff"
+                        onclick="setAccent('#050505', '#ffffff', this)" title="Classic Black"></div>
+                    <div class="theme-dot" data-color="#007AFF" style="background:#007AFF; border-color:#007AFF"
+                        onclick="setAccent('#020813', '#007AFF', this)" title="Deep Blue"></div>
+                    <div class="theme-dot" data-color="#32D74B" style="background:#32D74B; border-color:#32D74B"
+                        onclick="setAccent('#020a05', '#32D74B', this)" title="Stealth Green"></div>
+                    <div class="theme-dot" data-color="#E60012" style="background:#E60012; border-color:#E60012"
+                        onclick="setAccent('#120000', '#E60012', this)" title="Crimson Reactor"></div>
+                </div>
+
+                <!-- Dark/Light Toggle -->
+                <div class="theme-pill-container" id="theme-sw">
+                    <div class="theme-slider-red"></div>
+                    <div class="theme-icon icon-moon"><svg viewBox="0 0 24 24">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" />
+                        </svg></div>
+                    <div class="theme-icon icon-sun"><svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="5" stroke="currentColor" />
+                            <path
+                                d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42m12.72-12.72l1.42-1.42"
+                                stroke="currentColor" />
+                        </svg></div>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="control-divider"></div>
+
+            <div class="control-group">
+                <!-- Action Buttons -->
+                <button class="refresh-btn"
+                    style="background: var(--success); color: #fff; border-color: var(--success);"
+                    onclick="downloadCSV()">⬇ Export CSV</button>
+                <button class="refresh-btn" onclick="location.reload()">↻ Force Refresh</button>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-title">Total Keys Generated</div>
+            <div class="metric-val">{{ total }}</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-title">Avg Generation Speed</div>
+            <!-- Divided by 1000 to convert milliseconds to seconds -->
+            <div class="metric-val">{{ (avg_time / 1000) | round(3) }}<span
+                    style="font-size:1rem;color:var(--muted)">s</span></div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-title">Avg Key Length</div>
+            <div class="metric-val">{{ avg_len }}<span style="font-size:1rem;color:var(--muted)"> chars</span></div>
+        </div>
+    </div>
+
+    <div class="metric-card" style="padding: 0; overflow:hidden;">
+        <table id="telemetry-table">
+            <thead>
+                <tr>
+                    <th>Timestamp (Local)</th>
+                    <th>Length</th>
+                    <th>Execution Time</th>
+                    <th>Entropy Source</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <!-- Added class and data-utc attribute for Javascript timezone conversion -->
+                    <td class="local-time" style="color:var(--muted)" data-utc="{{ log[0] }}">{{ log[0] }} UTC</td>
+                    <td>{{ log[1] }} chars</td>
+                    <!-- Divided by 1000 to convert to seconds -->
+                    <td>{{ (log[2] / 1000) | round(3) }} s</td>
+                    <td>
+                        <span class="origin-badge {% if 'Quantum' in log[3] %}origin-q{% else %}origin-a{% endif %}">
+                            {{ log[3] }}
+                        </span>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" style="text-align: center; color: var(--muted); padding: 40px;">
+                        <div style="font-size: 1.2rem; margin-bottom: 10px;">No telemetry data logged yet.</div>
+                        <div style="font-size: 0.8rem; opacity: 0.6;">Generate a key on the main application to see data
+                            populate here.</div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // --- TIMEZONE CONVERTER ---
+        // Converts the backend UTC time into the user's exact local timezone (e.g. IST)
+        document.querySelectorAll('.local-time').forEach(el => {
+            const utcString = el.getAttribute('data-utc');
+            // Safely parse SQL YYYY-MM-DD HH:MM:SS into a UTC Date object
+            const utcDate = new Date(utcString.replace(' ', 'T') + 'Z');
+            if (!isNaN(utcDate)) {
+                // toLocaleString() automatically converts it to the user's local time!
+                el.innerText = utcDate.toLocaleString(undefined, {
+                    year: 'numeric', month: 'short', day: 'numeric',
+                    hour: '2-digit', minute: '2-digit', second: '2-digit'
+                });
+            }
+        });
+
+        // --- EXPORT TO EXCEL/CSV ---
+        function downloadCSV() {
+            let csv = [];
+            const rows = document.querySelectorAll("#telemetry-table tr");
+
+            for (let i = 0; i < rows.length; i++) {
+                let row = [], cols = rows[i].querySelectorAll("td, th");
+                for (let j = 0; j < cols.length; j++) {
+                    // Clean text and escape quotes for Excel compatibility
+                    let data = cols[j].innerText.replace(/"/g, '""');
+                    row.push('"' + data + '"');
+                }
+                csv.push(row.join(","));
+            }
+
+            // Create a downloadable Blob
+            const csvFile = new Blob([csv.join("\n")], { type: "text/csv" });
+            const downloadLink = document.createElement("a");
+            downloadLink.download = "quantum_telemetry_export.csv";
+            downloadLink.href = window.URL.createObjectURL(csvFile);
+            downloadLink.style.display = "none";
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+
+        // --- THEME SYNC ENGINE ---
+        function syncTheme() {
+            const savedAccent = localStorage.getItem('accent') || '#E60012';
+            const savedBg = localStorage.getItem('theme_bg') || '#050505';
+            const savedBtnText = savedAccent === '#ffffff' ? '#000000' : '#ffffff';
+
+            document.documentElement.style.setProperty('--accent', savedAccent);
+            document.documentElement.style.setProperty('--accent-glow', savedAccent + '66');
+            document.documentElement.style.setProperty('--btn-text-color', savedBtnText);
+
+            if (document.body.getAttribute('data-theme') !== 'light') {
+                document.documentElement.style.setProperty('--bg', savedBg);
+            }
+
+            document.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active'));
+            const activeDot = document.querySelector(`.theme-dot[data-color="${savedAccent.toUpperCase()}"]`);
+            if (activeDot) activeDot.classList.add('active');
+        }
+
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.body.setAttribute('data-theme', savedTheme);
+        syncTheme();
+
+        document.getElementById('theme-sw').onclick = () => {
+            const n = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', n);
+            localStorage.setItem('theme', n);
+
+            if (n === 'dark') {
+                const savedBg = localStorage.getItem('theme_bg') || '#050505';
+                document.documentElement.style.setProperty('--bg', savedBg);
+            } else {
+                document.documentElement.style.setProperty('--bg', '#f5f5f7');
+            }
+        };
+
+        function setAccent(bgHex, accentHex, el) {
+            localStorage.setItem('accent', accentHex);
+            localStorage.setItem('theme_bg', bgHex);
+            syncTheme();
+        }
+
+        // Live Auto-Refresh every 5 seconds
+        setInterval(() => {
+            window.location.reload();
+        }, 5000);
+    </script>
+</body>
+
+</html>
