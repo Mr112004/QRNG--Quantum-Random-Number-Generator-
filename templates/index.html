@@ -4,6 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover" />
     <title>Quantum Key Engine</title>
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#050505">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700;900&family=JetBrains+Mono:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <!-- QR Code Generator Library -->
@@ -56,6 +58,11 @@
         .theme-icon { flex: 1; display: flex; align-items: center; justify-content: center; z-index: 2; transition: 0.3s; opacity: 0.4; color: #ffffff; }
         body[data-theme="dark"] .icon-moon, body[data-theme="light"] .icon-sun { opacity: 1; color: var(--btn-text-color, #ffffff); }
         .theme-icon svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+        /* --- NEW PWA INSTALL BUTTON --- */
+        .install-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); padding: 6px 12px; border-radius: 8px; font-weight: 900; font-size: 0.7rem; text-transform: uppercase; cursor: pointer; transition: 0.3s; display: none; align-items: center; gap: 6px; font-family: 'Roboto', sans-serif; }
+        .install-btn:hover { background: var(--accent); border-color: var(--accent); color: var(--btn-text-color); box-shadow: 0 0 10px var(--accent-glow); }
+        .install-btn svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; }
 
         /* --- LAYOUT --- */
         .main-container { max-width: 1400px; margin: 0 auto; padding: 90px 25px 25px; display: grid; grid-template-columns: 340px 1fr; gap: 25px; align-items: start; }
@@ -221,6 +228,12 @@
         </div>
         
         <div class="header-actions">
+            <!-- PWA Install Button (Hidden by default, shown when installable) -->
+            <button class="install-btn" id="install-btn" title="Install Desktop/Mobile App">
+                <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                Install App
+            </button>
+
             <!-- Audio Toggle -->
             <button class="audio-toggle-btn" id="audio-toggle" title="Toggle Sound">🔊</button>
             
@@ -403,6 +416,40 @@
             }
             return id;
         }
+
+        // --- PWA SERVICE WORKER & INSTALL LOGIC ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed:', err));
+            });
+        }
+
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent Chrome from automatically showing the mini-infobar
+            e.preventDefault();
+            // Stash the event so it can be triggered later
+            deferredPrompt = e;
+            // Show the Install button in the header
+            const installBtn = document.getElementById('install-btn');
+            if (installBtn) installBtn.style.display = 'flex';
+        });
+
+        document.getElementById('install-btn').addEventListener('click', async () => {
+            if (deferredPrompt !== null) {
+                soundClick(); vibrate(20);
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') console.log('User accepted the install prompt');
+                deferredPrompt = null;
+                document.getElementById('install-btn').style.display = 'none';
+            }
+        });
+
+        window.addEventListener('appinstalled', () => {
+            document.getElementById('install-btn').style.display = 'none';
+            showToast("✓ APP INSTALLED SUCCESSFULLY");
+        });
         
         const btn = document.getElementById('gen-btn'), disp = document.getElementById('p-display'), hList = document.getElementById('history-list');
         const vCanvas = document.getElementById('v-canvas'), vCtx = vCanvas.getContext('2d');
