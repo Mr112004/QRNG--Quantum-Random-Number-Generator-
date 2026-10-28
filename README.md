@@ -5,6 +5,8 @@ Super Quantum generates cryptographically secure keys using true quantum entropy
 This interface can connect to a real quantum backend (IBM / Qiskit or a QRNG API) and use true quantum measurement
 results to produce entropy for keys. Telemetry (entropy, bitrate, latency) is exposed via /qrng-stats.
 
+Website Link - https://qrng-quantum-random-number-generator.onrender.com
+
 IBM Quantum & Qiskit integration
 
 1. Obtain an IBM API token and configure server-side Qiskit runtime.
